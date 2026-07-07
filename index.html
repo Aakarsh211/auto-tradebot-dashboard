@@ -97,6 +97,9 @@
                 
                 <div class="section-title">Holdings</div>
                 <div>
+                    <div v-if="currentMarket === 'US' && !data.us_summary" style="padding: 20px; color: var(--red); text-align: center; font-weight: 500;">
+                        IBKR API Disconnected. Could not fetch US positions.
+                    </div>
                     <div v-for="h in currentHoldings" :key="h.symbol" class="holding-item" @click="selectStock(h)">
                         <div class="holding-left">
                             <h3>{{ h.symbol }}</h3>
@@ -212,6 +215,7 @@
                     const hist = this.data.portfolio_history;
                     const earliest = hist[0];
                     const earliestVal = this.currentMarket === 'US' ? earliest.us_value : earliest.tsx_value;
+                    if (!earliestVal) return 0;
                     return this.currentTotalValue - earliestVal;
                 },
                 currentHoldings() {
@@ -386,7 +390,8 @@
             },
             async mounted() {
                 try {
-                    const response = await fetch(`https://api.github.com/gists/ae8497fb6814f01e75c9e00ccda036ba`);
+                    // Added cache-busting timestamp to prevent mobile browsers from serving stale JSON
+                    const response = await fetch(`https://api.github.com/gists/ae8497fb6814f01e75c9e00ccda036ba?t=${Date.now()}`);
                     if (!response.ok) throw new Error("Failed to fetch data");
                     const gistData = await response.json();
                     this.data = JSON.parse(gistData.files['dashboard.json'].content);
