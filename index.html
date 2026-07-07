@@ -3,233 +3,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>Auto-TradeBot Dashboard</title>
+    <meta name="theme-color" content="#000000">
+    <title>Auto-TradeBot</title>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0b0c10;
-            --card-bg: #1f2833;
-            --text-main: #c5c6c7;
-            --text-accent: #66fcf1;
-            --green: #45a29e;
-            --red: #f44336;
+            --bg: #000000;
+            --card-bg: #111111;
+            --text: #ffffff;
+            --text-muted: #888888;
+            --green: #2ecc71;
+            --red: #e74c3c;
+            --border: #222222;
         }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-        }
-        .header {
-            padding: 40px 20px 20px 20px;
-            background: linear-gradient(180deg, rgba(31,40,51,1) 0%, rgba(11,12,16,1) 100%);
-        }
-        .title {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-        }
-        .total-value {
-            font-size: 42px;
-            font-weight: 700;
-            margin: 10px 0;
-            color: white;
-        }
-        .container {
-            padding: 0 20px 20px 20px;
-        }
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin: 30px 0 15px 0;
-            color: white;
-        }
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .symbol {
-            font-weight: bold;
-            font-size: 18px;
-            color: white;
-        }
-        .value {
-            font-weight: 600;
-            font-size: 16px;
-        }
-        .details {
-            font-size: 14px;
-            color: #aaa;
-            line-height: 1.4;
-        }
-        .ai-reasoning {
-            font-size: 14px;
-            font-style: italic;
-            color: #888;
-            margin-top: 8px;
-            border-left: 2px solid var(--text-accent);
-            padding-left: 10px;
-        }
-        .pill {
-            background-color: rgba(102, 252, 241, 0.1);
-            color: var(--text-accent);
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .error {
-            color: var(--red);
-            text-align: center;
-            padding: 20px;
-        }
-        .spinner {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-accent);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); overscroll-behavior-y: none; padding-bottom: 70px; }
+        
+        .header { padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
+        .header h1 { font-size: 1.2rem; font-weight: 600; }
+        .header .last-updated { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; }
+        
+        .portfolio-value { padding: 30px 20px 10px; text-align: center; }
+        .portfolio-value h2 { font-size: 2.5rem; font-weight: 700; letter-spacing: -1px; }
+        .portfolio-value p { font-size: 1rem; margin-top: 5px; font-weight: 500; }
+        
+        .chart-container { width: 100%; height: 220px; padding: 0 10px; position: relative; margin-bottom: 20px;}
+        
+        .section-title { padding: 20px 20px 10px; font-size: 1.1rem; font-weight: 600; border-bottom: 1px solid var(--border); }
+        
+        .holding-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border); cursor: pointer; }
+        .holding-item:active { background-color: var(--card-bg); }
+        .holding-left h3 { font-size: 1.1rem; font-weight: 600; }
+        .holding-left p { font-size: 0.85rem; color: var(--text-muted); margin-top: 3px; }
+        .holding-right { text-align: right; }
+        .holding-right h3 { font-size: 1.1rem; font-weight: 600; }
+        .holding-right p { font-size: 0.85rem; margin-top: 3px; font-weight: 500; }
+        
+        .green { color: var(--green); }
+        .red { color: var(--red); }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background-color: var(--card-bg); display: flex; border-top: 1px solid var(--border); z-index: 100;}
+        .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; }
+        .nav-item.active { color: var(--text); }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: currentColor; }
+        
+        /* Detail View */
+        .detail-header { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+        .back-btn { font-size: 1rem; color: var(--text); background: none; border: none; cursor: pointer; margin-right: 15px; display: flex; align-items: center; }
+        .back-btn svg { width: 20px; height: 20px; fill: currentColor; margin-right: 5px; }
+        .detail-header h1 { font-size: 1.2rem; font-weight: 600; }
+        
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .stat-box { background: var(--card-bg); padding: 15px; border-radius: 12px; }
+        .stat-box span { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px; }
+        .stat-box h4 { font-size: 1.1rem; font-weight: 600; }
+        
+        .ai-timeline { padding: 0 20px 30px; }
+        .timeline-item { position: relative; padding-left: 20px; margin-bottom: 20px; border-left: 2px solid var(--border); }
+        .timeline-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+        .timeline-date { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; }
+        .timeline-action { font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; }
+        .timeline-reason { font-size: 0.85rem; line-height: 1.4; color: #ccc; }
+        
+        .loading { display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 1.2rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <div class="title">Total Portfolio (Est)</div>
-        <div class="total-value" id="total-val">$0.00</div>
-        <div style="color: #888; font-size: 12px;" id="last-updated">Last Updated: Loading...</div>
-    </div>
-
-    <div class="container">
+    <div id="app">
+        <div v-if="loading" class="loading">Fetching Live Data...</div>
         
-        <div class="section-title">Markets Overview</div>
-        <div class="card">
-            <div class="details" id="us-summary">Loading US...</div>
+        <div v-else>
+            <!-- MAIN DASHBOARD -->
+            <div v-if="!selectedStock">
+                <div class="header">
+                    <h1>{{ currentMarket === 'US' ? 'US Portfolio' : 'TSX Portfolio' }}</h1>
+                    <div class="last-updated">Last Updated: {{ formatTime(data.last_updated) }}</div>
+                </div>
+                
+                <div class="portfolio-value">
+                    <h2>{{ formatCurrency(currentTotalValue) }}</h2>
+                    <p :class="totalChange >= 0 ? 'green' : 'red'">
+                        {{ totalChange >= 0 ? '+' : '' }}{{ formatCurrency(totalChange) }} ({{ (totalChange / currentTotalValue * 100).toFixed(2) }}%) All time
+                    </p>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="portfolioChart"></canvas>
+                </div>
+                
+                <div class="section-title">Holdings</div>
+                <div>
+                    <div v-for="h in currentHoldings" :key="h.symbol" class="holding-item" @click="selectStock(h)">
+                        <div class="holding-left">
+                            <h3>{{ h.symbol }}</h3>
+                            <p>{{ h.shares }} shares</p>
+                        </div>
+                        <div class="holding-right">
+                            <h3>{{ formatCurrency(h.value) }}</h3>
+                            <p :class="h.pl >= 0 ? 'green' : 'red'">
+                                {{ h.pl >= 0 ? '+' : '' }}{{ formatCurrency(h.pl) }}
+                            </p>
+                        </div>
+                    </div>
+                    <div v-if="currentHoldings.length === 0" style="padding: 20px; color: var(--text-muted); text-align: center;">
+                        No holdings currently.
+                    </div>
+                </div>
+                
+                <!-- BOTTOM NAV -->
+                <div class="bottom-nav">
+                    <div class="nav-item" :class="{active: currentMarket === 'US'}" @click="currentMarket = 'US'">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.64-2.14 1.64-1.64 0-2.1-.96-2.17-1.92H8.16c.09 1.73 1.07 2.87 2.73 3.28V19h2.34v-1.65c1.71-.35 2.83-1.46 2.83-2.99 0-1.97-1.55-2.74-3.75-3.22z"/></svg>
+                        US Market
+                    </div>
+                    <div class="nav-item" :class="{active: currentMarket === 'TSX'}" @click="currentMarket = 'TSX'">
+                        <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+                        TSX Market
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STOCK DETAIL VIEW -->
+            <div v-else>
+                <div class="detail-header">
+                    <button class="back-btn" @click="selectedStock = null">
+                        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                    </button>
+                    <h1>{{ selectedStock.symbol }}</h1>
+                </div>
+                
+                <div class="portfolio-value">
+                    <h2>{{ formatCurrency(selectedStock.currentPrice) }}</h2>
+                    <p :class="selectedStock.pl >= 0 ? 'green' : 'red'">
+                        Total Return: {{ selectedStock.pl >= 0 ? '+' : '' }}{{ formatCurrency(selectedStock.pl) }} ({{ (selectedStock.pl / (selectedStock.avgCost * selectedStock.shares) * 100).toFixed(2) }}%)
+                    </p>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="stockChart"></canvas>
+                </div>
+                
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <span>Your Avg Cost</span>
+                        <h4>{{ formatCurrency(selectedStock.avgCost) }}</h4>
+                    </div>
+                    <div class="stat-box">
+                        <span>Shares Owned</span>
+                        <h4>{{ selectedStock.shares }}</h4>
+                    </div>
+                    <div class="stat-box">
+                        <span>Total Value</span>
+                        <h4>{{ formatCurrency(selectedStock.value) }}</h4>
+                    </div>
+                    <div class="stat-box">
+                        <span>Market</span>
+                        <h4>{{ currentMarket }}</h4>
+                    </div>
+                </div>
+                
+                <div class="section-title" style="margin-bottom: 20px;">AI Reasoning History</div>
+                <div class="ai-timeline">
+                    <div v-for="thought in getThoughtsForStock(selectedStock.symbol)" :key="thought.timestamp" class="timeline-item">
+                        <div class="timeline-date">{{ formatTime(thought.timestamp) }}</div>
+                        <div class="timeline-action" :class="thought.action === 'BUY' ? 'green' : 'red'">
+                            {{ thought.action }} - Target Pct: {{ (thought.target_portfolio_pct * 100).toFixed(1) }}%
+                        </div>
+                        <div class="timeline-reason">{{ thought.reasoning }}</div>
+                    </div>
+                    <div v-if="getThoughtsForStock(selectedStock.symbol).length === 0" style="color: var(--text-muted); font-size: 0.85rem;">
+                        No AI history recorded for this position yet.
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card">
-            <div class="details" id="tsx-summary">Loading TSX...</div>
-        </div>
-
-        <div class="section-title">Current Holdings</div>
-        <div id="holdings-list">
-            <div class="spinner">Fetching data...</div>
-        </div>
-
-        <div class="section-title">AI Brain (Latest Moves)</div>
-        <div id="decisions-list">
-            <div class="details">Waiting for data...</div>
-        </div>
-        
     </div>
 
     <script>
-        function formatMoney(num) {
-            return '$' + parseFloat(num).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        }
-        
-        function parseHoldings(str, type) {
-            if(!str || str === "None" || str === "Error") return [];
-            let lines = str.split('\n');
-            let items = [];
-            for(let line of lines) {
-                if(line.trim() === "") continue;
-                // e.g. "XOM: 454.0 shares @ Avg Cost $136.17 (Est Value: $62238.86, 6.3%)"
-                let parts = line.split(':');
-                if(parts.length < 2) continue;
-                let symbol = parts[0].trim();
-                let rest = parts.slice(1).join(':').trim();
-                let estValMatch = rest.match(/Est Value:\s*\$?([\d\.]+)/);
-                let estVal = estValMatch ? parseFloat(estValMatch[1]) : 0;
-                items.push({ symbol, details: rest, value: estVal, type });
-            }
-            return items;
-        }
+        const { createApp } = Vue;
 
-        async function loadDashboard() {
-            try {
-                const response = await fetch(`https://api.github.com/gists/ae8497fb6814f01e75c9e00ccda036ba`);
-                if (!response.ok) throw new Error("Failed to fetch data");
-                const gistData = await response.json();
-                const data = JSON.parse(gistData.files['dashboard.json'].content);
-
-                document.getElementById('last-updated').innerText = "Last Updated: " + new Date(data.last_updated).toLocaleString();
-                
-                // Summaries
-                document.getElementById('us-summary').innerText = data.us_summary || "US Data Unavailable";
-                document.getElementById('tsx-summary').innerText = data.tsx_summary || "TSX Data Unavailable";
-                
-                // Parse total value from summaries
-                let totalNet = 0;
-                let usMatch = (data.us_summary || "").match(/Net Liquidation:\s*\$?([\d\.]+)/);
-                if(usMatch) totalNet += parseFloat(usMatch[1]);
-                
-                let tsxMatch = (data.tsx_summary || "").match(/Virtual TSX Budget:\s*\$?([\d\.]+)/);
-                if(tsxMatch) totalNet += parseFloat(tsxMatch[1]);
-                
-                document.getElementById('total-val').innerText = formatMoney(totalNet);
-
-                // Holdings
-                let holdings = [];
-                holdings = holdings.concat(parseHoldings(data.us_positions, 'US'));
-                holdings = holdings.concat(parseHoldings(data.tsx_positions, 'TSX'));
-                
-                // Sort by value descending
-                holdings.sort((a, b) => b.value - a.value);
-                
-                let holdingsHtml = "";
-                for(let item of holdings) {
-                    holdingsHtml += `
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="symbol">${item.symbol}</span>
-                            <span class="value">${formatMoney(item.value)}</span>
-                        </div>
-                        <div class="details">${item.details}</div>
-                    </div>`;
+        createApp({
+            data() {
+                return {
+                    loading: true,
+                    data: null,
+                    currentMarket: 'US', // 'US' or 'TSX'
+                    selectedStock: null,
+                    chartInstance: null
                 }
-                document.getElementById('holdings-list').innerHTML = holdingsHtml || "<div class='details'>No positions currently held.</div>";
-
-                // Decisions
-                let decisionsHtml = "";
-                if(data.decisions && data.decisions.length > 0) {
-                    for(let d of data.decisions.slice().reverse()) {
-                        let isBuy = d.action.toUpperCase() === 'BUY';
-                        let color = isBuy ? 'var(--text-accent)' : 'var(--red)';
-                        decisionsHtml += `
-                        <div class="card">
-                            <div class="card-header">
-                                <span class="symbol" style="color: ${color}">${d.action} ${d.symbol}</span>
-                                <span class="pill">${d.bucket}</span>
-                            </div>
-                            <div class="details">Target Pct: ${(d.target_portfolio_pct * 100).toFixed(1)}%</div>
-                            <div class="ai-reasoning">${d.reasoning}</div>
-                        </div>`;
+            },
+            computed: {
+                currentTotalValue() {
+                    if (!this.data) return 0;
+                    if (this.currentMarket === 'US') {
+                        const m = this.data.us_summary.match(/Total Net Liquidation: \$([\d,.]+)/);
+                        return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
+                    } else {
+                        const m = this.data.tsx_summary.match(/Virtual TSX Budget: \$([\d,.]+)/);
+                        return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
                     }
-                } else {
-                    decisionsHtml = "<div class='details'>No recent AI decisions.</div>";
+                },
+                totalChange() {
+                    if (!this.data || !this.data.portfolio_history || this.data.portfolio_history.length === 0) return 0;
+                    const hist = this.data.portfolio_history;
+                    const earliest = hist[0];
+                    const earliestVal = this.currentMarket === 'US' ? earliest.us_value : earliest.tsx_value;
+                    return this.currentTotalValue - earliestVal;
+                },
+                currentHoldings() {
+                    if (!this.data) return [];
+                    const str = this.currentMarket === 'US' ? this.data.us_positions : this.data.tsx_positions;
+                    if (!str || str === "None") return [];
+                    
+                    const items = [];
+                    const regex = /([A-Z0-9.-]+): (\d+) shares @ Avg Cost \$([\d.]+) \(Est Value: \$([\d.]+)/g;
+                    let match;
+                    while ((match = regex.exec(str)) !== null) {
+                        const avgCost = parseFloat(match[3]);
+                        const val = parseFloat(match[4]);
+                        const shares = parseInt(match[2]);
+                        const currentPrice = val / shares;
+                        const pl = val - (avgCost * shares);
+                        items.push({
+                            symbol: match[1],
+                            shares: shares,
+                            avgCost: avgCost,
+                            value: val,
+                            currentPrice: currentPrice,
+                            pl: pl
+                        });
+                    }
+                    return items;
                 }
-                document.getElementById('decisions-list').innerHTML = decisionsHtml;
-
-            } catch (e) {
-                console.error(e);
-                document.getElementById('holdings-list').innerHTML = `<div class="error">Failed to connect to the bot API. Make sure the bot is running and you are on the same Wi-Fi.</div>`;
+            },
+            watch: {
+                currentMarket() {
+                    this.renderPortfolioChart();
+                },
+                selectedStock(val) {
+                    if (val) {
+                        this.$nextTick(() => {
+                            this.renderStockChart();
+                        });
+                    } else {
+                        this.$nextTick(() => {
+                            this.renderPortfolioChart();
+                        });
+                    }
+                }
+            },
+            methods: {
+                formatCurrency(val) {
+                    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+                },
+                formatTime(iso) {
+                    return new Date(iso).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+                },
+                selectStock(stock) {
+                    this.selectedStock = stock;
+                },
+                getThoughtsForStock(symbol) {
+                    if (!this.data || !this.data.all_time_decisions) return [];
+                    const thoughts = [];
+                    // all_time_decisions format: [{date, timestamp, bucket, decisions: [{action, symbol, target_portfolio_pct, reasoning}]}]
+                    for (const entry of this.data.all_time_decisions) {
+                        for (const d of entry.decisions || []) {
+                            if (d.symbol === symbol) {
+                                thoughts.push({
+                                    timestamp: entry.timestamp,
+                                    action: d.action,
+                                    target_portfolio_pct: d.target_portfolio_pct,
+                                    reasoning: d.reasoning
+                                });
+                            }
+                        }
+                    }
+                    return thoughts.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                },
+                renderPortfolioChart() {
+                    if (this.chartInstance) this.chartInstance.destroy();
+                    const ctx = document.getElementById('portfolioChart');
+                    if (!ctx || !this.data || !this.data.portfolio_history) return;
+                    
+                    const hist = this.data.portfolio_history;
+                    // Always append today's live value at the end of the history array
+                    const dataPoints = hist.map(h => this.currentMarket === 'US' ? h.us_value : h.tsx_value);
+                    const labels = hist.map(h => h.date);
+                    
+                    if (dataPoints[dataPoints.length - 1] !== this.currentTotalValue) {
+                        dataPoints.push(this.currentTotalValue);
+                        labels.push("Now");
+                    }
+                    
+                    const isUp = dataPoints[dataPoints.length-1] >= dataPoints[0];
+                    const color = isUp ? '#2ecc71' : '#e74c3c';
+                    
+                    this.chartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: dataPoints,
+                                borderColor: color,
+                                borderWidth: 2,
+                                fill: true,
+                                backgroundColor: (context) => {
+                                    const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 220);
+                                    gradient.addColorStop(0, color + '40'); // 25% opacity
+                                    gradient.addColorStop(1, '#00000000');
+                                    return gradient;
+                                },
+                                pointRadius: 0,
+                                pointHitRadius: 10,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                            scales: {
+                                x: { display: false },
+                                y: { display: false, min: Math.min(...dataPoints) * 0.99, max: Math.max(...dataPoints) * 1.01 }
+                            },
+                            interaction: { mode: 'nearest', axis: 'x', intersect: false }
+                        }
+                    });
+                },
+                renderStockChart() {
+                    if (this.chartInstance) this.chartInstance.destroy();
+                    const ctx = document.getElementById('stockChart');
+                    if (!ctx || !this.data || !this.data.stock_histories || !this.data.stock_histories[this.selectedStock.symbol]) return;
+                    
+                    const hist = this.data.stock_histories[this.selectedStock.symbol];
+                    const dataPoints = hist.map(h => h.price);
+                    const labels = hist.map(h => h.date);
+                    
+                    // Add today's live point
+                    if (dataPoints[dataPoints.length - 1] !== this.selectedStock.currentPrice) {
+                        dataPoints.push(this.selectedStock.currentPrice);
+                        labels.push("Now");
+                    }
+                    
+                    const isUp = dataPoints[dataPoints.length-1] >= dataPoints[0];
+                    const color = isUp ? '#2ecc71' : '#e74c3c';
+                    
+                    this.chartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: dataPoints,
+                                borderColor: color,
+                                borderWidth: 2,
+                                fill: true,
+                                backgroundColor: (context) => {
+                                    const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 220);
+                                    gradient.addColorStop(0, color + '40');
+                                    gradient.addColorStop(1, '#00000000');
+                                    return gradient;
+                                },
+                                pointRadius: 0,
+                                pointHitRadius: 10,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                            scales: {
+                                x: { display: false },
+                                y: { display: false, min: Math.min(...dataPoints) * 0.99, max: Math.max(...dataPoints) * 1.01 }
+                            }
+                        }
+                    });
+                }
+            },
+            async mounted() {
+                try {
+                    const response = await fetch(`https://api.github.com/gists/ae8497fb6814f01e75c9e00ccda036ba`);
+                    if (!response.ok) throw new Error("Failed to fetch data");
+                    const gistData = await response.json();
+                    this.data = JSON.parse(gistData.files['dashboard.json'].content);
+                    this.loading = false;
+                    
+                    this.$nextTick(() => {
+                        this.renderPortfolioChart();
+                    });
+                } catch (e) {
+                    console.error(e);
+                    alert("Error loading data from GitHub Gist");
+                }
             }
-        }
-
-        // Auto refresh every 30 seconds
-        loadDashboard();
-        setInterval(loadDashboard, 30000);
+        }).mount('#app');
     </script>
 </body>
 </html>
