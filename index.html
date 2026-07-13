@@ -85,15 +85,9 @@
                 </div>
                 
                 <div class="portfolio-value">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                     <h1 class="portfolio-value">{{ formatCurrency(currentTotalValue) }}</h1>
-                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">
-                        <span v-if="fetchingLive">Fetching live prices...</span>
-                        <span v-else>Live Market Data</span>
-                    </div>
-                </div>
                     <p :class="totalChange >= 0 ? 'green' : 'red'">
-                        {{ totalChange >= 0 ? '+' : '' }}{{ formatCurrency(totalChange) }} ({{ (totalChange / currentTotalValue * 100).toFixed(2) }}%) All time
+                        {{ totalChange >= 0 ? '+' : '' }}{{ formatCurrency(totalChange) }} ({{ (totalChange / earliestVal * 100).toFixed(2) }}%) All time
                     </p>
                 </div>
                 
@@ -202,39 +196,31 @@
                     data: null,
                     currentMarket: 'US', // 'US' or 'TSX'
                     selectedStock: null,
-                    chartInstance: null,
-                    liveMarketData: {},
-                    fetchingLive: false
+                    chartInstance: null
                 }
             },
             computed: {
                 currentTotalValue() {
                     if (!this.data) return 0;
-                    const summaryStr = this.currentMarket === 'US' ? this.data.us_summary : this.data.tsx_summary;
-                    if (!summaryStr) return 0;
-                    
-                    const cashMatch = summaryStr.match(/Cash: \$([\d,.]+)/);
-                    const cash = cashMatch ? parseFloat(cashMatch[1].replace(/,/g, '')) : 0;
-                    
-                    let holdingsValue = 0;
-                    for (const h of this.currentHoldings) {
-                        holdingsValue += h.value;
+                    if (this.currentMarket === 'US') {
+                        const m = this.data.us_summary.match(/Total Net Liquidation: \$([\d,.]+)/);
+                        return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
+                    } else {
+                        const m = this.data.tsx_summary.match(/Virtual TSX Budget: \$([\d,.]+)/);
+                        return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
                     }
-                    
-                    if (holdingsValue === 0) {
-                        const liqMatch = summaryStr.match(/Liquidation: \$([\d,.]+)/) || summaryStr.match(/Budget: \$([\d,.]+)/);
-                        return liqMatch ? parseFloat(liqMatch[1].replace(/,/g, '')) : 0;
-                    }
-                    
-                    return cash + holdingsValue;
+                },
+                earliestVal() {
+                    if (!this.data || !this.data.portfolio_history || this.data.portfolio_history.length === 0) return 1;
+                    const hist = this.data.portfolio_history;
+                    const earliest = hist[0];
+                    return this.currentMarket === 'US' ? earliest.us_value : earliest.tsx_value;
                 },
                 totalChange() {
                     if (!this.data || !this.data.portfolio_history || this.data.portfolio_history.length === 0) return 0;
-                    const hist = this.data.portfolio_history;
-                    const earliest = hist[0];
-                    const earliestVal = this.currentMarket === 'US' ? earliest.us_value : earliest.tsx_value;
-                    if (!earliestVal) return 0;
-                    return this.currentTotalValue - earliestVal;
+                    const val = this.earliestVal;
+                    if (!val) return 0;
+                    return this.currentTotalValue - val;
                 },
                 currentHoldings() {
                     if (!this.data) return [];
@@ -250,9 +236,6 @@
                         const avgCost = parseFloat(match[3]);
                         
                         let currentPrice = parseFloat(match[4]) / shares;
-                        if (this.liveMarketData[sym]) {
-                            currentPrice = this.liveMarketData[sym].currentPrice;
-                        }
                         
                         const val = currentPrice * shares;
                         const pl = val - (avgCost * shares);
@@ -287,59 +270,6 @@
                 }
             },
             methods: {
-                async fetchLivePrices() {
-                    const symbols = [];
-                    [this.data.us_positions, this.data.tsx_positions].forEach(str => {
-                        if (!str || str === "None") return;
-                        const regex = /([A-Z0-9.-]+):/g;
-                        let m;
-                        while ((m = regex.exec(str)) !== null) {
-                            symbols.push(m[1]);
-                        }
-                    });
-                    
-                    if (symbols.length === 0) return;
-                    
-                    this.fetchingLive = true;
-                    
-                    await Promise.all(symbols.map(async sym => {
-                        try {
-                            const url = `https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=1mo`;
-                            const res = await fetch(url);
-                            const json = await res.json();
-                            const result = json.chart.result[0];
-                            const timestamps = result.timestamp;
-                            const closePrices = result.indicators.quote[0].close;
-                            
-                            const history = [];
-                            for(let i=0; i<timestamps.length; i++) {
-                                if(closePrices[i] !== null) {
-                                    history.push({
-                                        date: new Date(timestamps[i]*1000).toISOString().split('T')[0],
-                                        price: closePrices[i]
-                                    });
-                                }
-                            }
-                            const currentPrice = history[history.length-1].price;
-                            
-                            this.liveMarketData[sym] = {
-                                currentPrice: currentPrice,
-                                history: history
-                            };
-                        } catch(e) {
-                            console.error(`Failed to fetch live data for ${sym}`, e);
-                        }
-                    }));
-                    
-                    this.fetchingLive = false;
-                    
-                    // Trigger chart re-render after data comes in
-                    if (this.selectedStock) {
-                        this.renderStockChart();
-                    } else {
-                        this.renderPortfolioChart();
-                    }
-                },
                 formatCurrency(val) {
                     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
                 },
@@ -420,16 +350,17 @@
                 renderStockChart() {
                     if (this.chartInstance) this.chartInstance.destroy();
                     const ctx = document.getElementById('stockChart');
-                    if (!ctx || !this.selectedStock) return;
+                    if (!ctx || !this.data || !this.data.stock_histories || !this.data.stock_histories[this.selectedStock.symbol]) return;
                     
-                    let hist = [];
-                    if (this.liveMarketData[this.selectedStock.symbol]) {
-                        hist = this.liveMarketData[this.selectedStock.symbol].history;
-                    }
-                    if (hist.length === 0) return;
-                    
+                    const hist = this.data.stock_histories[this.selectedStock.symbol];
                     const dataPoints = hist.map(h => h.price);
                     const labels = hist.map(h => h.date);
+                    
+                    // Add today's live point
+                    if (dataPoints[dataPoints.length - 1] !== this.selectedStock.currentPrice) {
+                        dataPoints.push(this.selectedStock.currentPrice);
+                        labels.push("Now");
+                    }
                     
                     const isUp = dataPoints[dataPoints.length-1] >= dataPoints[0];
                     const color = isUp ? '#2ecc71' : '#e74c3c';
@@ -477,7 +408,6 @@
                     
                     this.$nextTick(() => {
                         this.renderPortfolioChart();
-                        this.fetchLivePrices(); // fetch live data dynamically
                     });
                 } catch (e) {
                     console.error(e);
