@@ -109,13 +109,13 @@
                     <div v-for="h in currentHoldings" :key="h.symbol" class="holding-item" @click="selectStock(h)">
                         <div class="holding-left">
                             <h3>{{ h.symbol }}</h3>
-                            <p>{{ h.shares }} shares</p>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;">{{ h.shares }} shares</span>
                         </div>
-                        <div class="holding-right">
-                            <h3>{{ formatCurrency(h.value) }}</h3>
-                            <p :class="h.pl >= 0 ? 'green' : 'red'">
-                                {{ h.pl >= 0 ? '+' : '' }}{{ formatCurrency(h.pl) }}
-                            </p>
+                        <div class="holding-right" style="text-align: right;">
+                            <div style="font-weight: 500;">{{ formatCurrency(h.value) }}</div>
+                            <div :class="h.plPct >= 0 ? 'green' : 'red'" style="font-size: 0.9rem;">
+                                {{ h.plPct >= 0 ? '+' : '' }}{{ h.plPct.toFixed(2) }}%
+                            </div>
                         </div>
                     </div>
                     <div v-if="currentHoldings.length === 0" style="padding: 20px; color: var(--text-muted); text-align: center;">
@@ -242,11 +242,11 @@
                     if (!str || str === "None") return [];
                     
                     const items = [];
-                    const regex = /([A-Z0-9.-]+): (\d+) shares @ Avg Cost \$([\d.]+) \(Est Value: \$([\d.]+)/g;
+                    const regex = /([A-Z0-9.-]+): ([\d.]+) shares @ Avg Cost \$([\d.]+) \(Est Value: \$([\d.]+)/g;
                     let match;
                     while ((match = regex.exec(str)) !== null) {
                         const sym = match[1];
-                        const shares = parseInt(match[2]);
+                        const shares = parseFloat(match[2]);
                         const avgCost = parseFloat(match[3]);
                         
                         let currentPrice = parseFloat(match[4]) / shares;
@@ -256,13 +256,15 @@
                         
                         const val = currentPrice * shares;
                         const pl = val - (avgCost * shares);
+                        const plPct = avgCost > 0 ? ((currentPrice - avgCost) / avgCost) * 100 : 0;
                         items.push({
                             symbol: sym,
                             shares: shares,
                             avgCost: avgCost,
                             value: val,
                             currentPrice: currentPrice,
-                            pl: pl
+                            pl: pl,
+                            plPct: plPct
                         });
                     }
                     return items.sort((a,b) => b.value - a.value);
