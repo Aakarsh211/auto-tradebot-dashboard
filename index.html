@@ -1033,21 +1033,21 @@
                         </div>
                         <div class="ws-metrics-grid">
                             <div class="ws-metric-box">
-                                <span>Invested Assets</span>
+                                <span>Holdings Value</span>
                                 <strong>{{ formatCurrency(investedValue, currentMarket) }}</strong>
                             </div>
                             <div class="ws-metric-box">
-                                <span>{{ currentMarket === 'US' ? 'Available Cash & Reserves' : 'Virtual Cash' }}</span>
-                                <strong>{{ formatCurrency(cashValue, currentMarket) }}</strong>
+                                <span>{{ currentMarket === 'US' ? 'Cash Balance' : 'Virtual Cash' }}</span>
+                                <strong :style="{color: cashValue < 0 ? 'var(--ws-red)' : '#ffffff'}">{{ formatCurrency(cashValue, currentMarket) }}</strong>
                             </div>
                         </div>
                         <div class="ws-alloc-bar">
                             <div class="ws-alloc-fill-invested" :style="{width: Math.min(100, Math.max(0, (investedValue / currentTotalValue * 100))) + '%'}"></div>
-                            <div class="ws-alloc-fill-cash" :style="{width: Math.min(100, Math.max(0, (cashValue / currentTotalValue * 100))) + '%'}"></div>
+                            <div class="ws-alloc-fill-cash" :style="{width: Math.min(100, Math.max(0, (cashValue > 0 ? (cashValue / currentTotalValue * 100) : 0))) + '%'}"></div>
                         </div>
                         <div class="ws-alloc-labels">
-                            <span>Invested: {{ (investedValue / (currentTotalValue || 1) * 100).toFixed(1) }}%</span>
-                            <span>Cash: {{ (cashValue / (currentTotalValue || 1) * 100).toFixed(1) }}%</span>
+                            <span>Holdings: {{ (investedValue / (currentTotalValue || 1) * 100).toFixed(1) }}%</span>
+                            <span :style="{color: cashValue < 0 ? 'var(--ws-red)' : 'inherit'}">{{ currentMarket === 'US' && cashValue < 0 ? 'Margin Borrowed: ' : 'Cash: ' }}{{ formatCurrency(cashValue, currentMarket) }}</span>
                         </div>
                     </div>
 
@@ -1272,7 +1272,14 @@
                     return this.currentHoldings.reduce((sum, h) => sum + (h.value || 0), 0);
                 },
                 cashValue() {
-                    return Math.max(0, this.currentTotalValue - this.investedValue);
+                    if (!this.data) return 0;
+                    if (this.currentMarket === 'US') {
+                        const m = (this.data.us_summary || '').match(/Total Cash:\s*\$([-\d,.]+)/i);
+                        return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
+                    } else {
+                        const m = (this.data.tsx_summary || '').match(/Virtual Cash:\s*\$([-\d,.]+)/i);
+                        return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
+                    }
                 },
                 
                 // Full normalized history (always starts with $1,000,000 baseline at index 0)
