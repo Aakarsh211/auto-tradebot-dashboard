@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#090a0f">
+    <meta name="theme-color" content="#0d0e12">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TradeBot">
-    <title>Auto-TradeBot Mobile</title>
+    <title>Auto-TradeBot</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,29 +20,28 @@
     
     <style>
         :root {
-            --bg: #090a0f;
-            --surface: #12141c;
-            --surface-elevated: #1a1d29;
-            --surface-border: rgba(255, 255, 255, 0.08);
+            --bg: #0d0e12;
+            --surface: #14161f;
+            --surface-elevated: #1a1d28;
+            --surface-border: rgba(255, 255, 255, 0.07);
             --surface-hover: rgba(255, 255, 255, 0.04);
             
-            --text-main: #f8fafc;
+            --text-main: #ffffff;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
             
-            --green: #10b981;
-            --green-glow: rgba(16, 185, 129, 0.15);
-            --green-border: rgba(16, 185, 129, 0.3);
+            /* Wealthsimple Signature Mint Green & Coral Red */
+            --ws-green: #05d184;
+            --ws-green-glow: rgba(5, 209, 132, 0.12);
+            --ws-green-border: rgba(5, 209, 132, 0.25);
             
-            --red: #f43f5e;
-            --red-glow: rgba(244, 63, 94, 0.15);
-            --red-border: rgba(244, 63, 94, 0.3);
+            --ws-red: #f43f5e;
+            --ws-red-glow: rgba(244, 63, 94, 0.12);
+            --ws-red-border: rgba(244, 63, 94, 0.25);
             
             --blue: #3b82f6;
             --blue-glow: rgba(59, 130, 246, 0.15);
-            
             --amber: #f59e0b;
-            --purple: #a855f7;
             
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -67,59 +66,62 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Top App Bar */
-        .app-bar {
-            padding: 0 16px 14px;
+        /* Top Header Bar */
+        .ws-app-bar {
+            padding: 0 16px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .brand-section {
+        .ws-account-pill {
+            display: flex;
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 20px;
+            padding: 3px;
+        }
+
+        .ws-acc-tab {
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ws-acc-tab.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .ws-status-right {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .bot-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+        .ws-live-badge {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
-        }
-
-        .bot-avatar svg {
-            width: 20px;
-            height: 20px;
-            fill: #ffffff;
-        }
-
-        .app-title-group h1 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: #fff;
-        }
-
-        .app-title-group .status-pill {
-            display: inline-flex;
             align-items: center;
             gap: 6px;
             font-size: 0.72rem;
+            font-weight: 600;
             color: var(--text-muted);
-            font-weight: 500;
         }
 
         .pulse-dot {
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background-color: var(--green);
-            box-shadow: 0 0 8px var(--green);
+            background-color: var(--ws-green);
+            box-shadow: 0 0 8px var(--ws-green);
             animation: pulse 2s infinite ease-in-out;
         }
 
@@ -129,8 +131,8 @@
         }
 
         .pulse-dot.red {
-            background-color: var(--red);
-            box-shadow: 0 0 8px var(--red);
+            background-color: var(--ws-red);
+            box-shadow: 0 0 8px var(--ws-red);
         }
 
         @keyframes pulse {
@@ -138,33 +140,33 @@
             50% { transform: scale(1.3); opacity: 0.7; }
         }
 
-        .sync-btn {
-            background: var(--surface-elevated);
+        .ws-sync-icon-btn {
+            background: var(--surface);
             border: 1px solid var(--surface-border);
             color: var(--text-secondary);
-            border-radius: 20px;
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .sync-btn:active {
-            transform: scale(0.95);
-            background: var(--surface-hover);
+        .ws-sync-icon-btn:active {
+            transform: scale(0.92);
+            background: var(--surface-elevated);
         }
 
-        .sync-btn svg {
-            width: 14px;
-            height: 14px;
+        .ws-sync-icon-btn svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .sync-btn.spinning svg {
+        .ws-sync-icon-btn.spinning svg {
             animation: spin 0.8s linear infinite;
         }
 
@@ -172,273 +174,248 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Market Switcher Tabs */
-        .market-switcher-container {
-            padding: 0 16px 14px;
+        /* Wealthsimple Portfolio Hero Section */
+        .ws-hero {
+            padding: 14px 16px 6px;
         }
 
-        .market-switcher {
-            display: flex;
-            background: var(--surface);
-            border: 1px solid var(--surface-border);
-            border-radius: 12px;
-            padding: 3px;
-        }
-
-        .market-tab {
-            flex: 1;
-            padding: 8px 12px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            text-align: center;
-            border-radius: 9px;
+        .ws-account-subtitle {
+            font-size: 0.8rem;
             color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s ease;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .ws-balance-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.035em;
+            color: #ffffff;
+            margin-bottom: 6px;
+            line-height: 1.1;
+        }
+
+        .ws-return-group {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            transition: color 0.15s;
         }
 
-        .market-tab.active {
-            background: var(--surface-elevated);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        .ws-return-group.green {
+            color: var(--ws-green);
         }
 
-        /* Portfolio Hero Card */
-        .hero-card {
-            margin: 0 16px 16px;
-            background: linear-gradient(145deg, #161822 0%, #0d0f17 100%);
-            border: 1px solid var(--surface-border);
-            border-radius: 20px;
-            padding: 20px;
+        .ws-return-group.red {
+            color: var(--ws-red);
+        }
+
+        .ws-return-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Chart Canvas & Scrubbing Area */
+        .ws-chart-wrapper {
+            width: 100%;
+            height: 200px;
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            margin-top: 8px;
+            margin-bottom: 14px;
+            touch-action: none;
         }
 
-        .hero-card::before {
-            content: '';
-            position: absolute;
-            top: -60px;
-            right: -60px;
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, rgba(0,0,0,0) 70%);
-            pointer-events: none;
+        /* Timeframe Selector Pills */
+        .ws-timeframe-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 6px 14px;
         }
 
-        .hero-subtitle {
+        .ws-tf-pill {
+            flex: 1;
+            padding: 7px 0;
             font-size: 0.78rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .ws-tf-pill.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        /* Wealthsimple Account Breakdown Card */
+        .ws-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 18px;
+            padding: 16px;
+            margin: 0 16px 20px;
+        }
+
+        .ws-card-header {
+            font-size: 0.76rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.04em;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .hero-badge {
-            background: rgba(59, 130, 246, 0.12);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.25);
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 0.68rem;
-            font-weight: 600;
-            text-transform: none;
-        }
-
-        .hero-value {
-            font-size: 2.25rem;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            color: #ffffff;
-            margin-bottom: 6px;
-        }
-
-        .hero-pnl {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.88rem;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 20px;
-            margin-bottom: 16px;
-        }
-
-        .hero-pnl.positive {
-            background: var(--green-glow);
-            color: var(--green);
-            border: 1px solid var(--green-border);
-        }
-
-        .hero-pnl.negative {
-            background: var(--red-glow);
-            color: var(--red);
-            border: 1px solid var(--red-border);
-        }
-
-        .hero-chart-container {
-            width: 100%;
-            height: 160px;
-            position: relative;
-            margin-bottom: 14px;
-        }
-
-        .breakdown-row {
+        .ws-metrics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 12px;
         }
 
-        .breakdown-item span {
-            font-size: 0.72rem;
+        .ws-metric-box span {
+            font-size: 0.75rem;
             color: var(--text-muted);
             display: block;
             margin-bottom: 2px;
         }
 
-        .breakdown-item strong {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-main);
+        .ws-metric-box strong {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
         }
 
-        /* Allocation Bar */
-        .alloc-bar-container {
-            margin-top: 10px;
-        }
-
-        .alloc-bar {
+        .ws-alloc-bar {
             height: 6px;
-            background: #222634;
+            background: #232738;
             border-radius: 4px;
             overflow: hidden;
             display: flex;
+            margin-top: 6px;
         }
 
-        .alloc-fill-invested {
-            background: #3b82f6;
+        .ws-alloc-fill-invested {
+            background: var(--blue);
             height: 100%;
-            transition: width 0.4s ease;
+            transition: width 0.3s ease;
         }
 
-        .alloc-fill-cash {
-            background: #10b981;
+        .ws-alloc-fill-cash {
+            background: var(--ws-green);
             height: 100%;
-            transition: width 0.4s ease;
+            transition: width 0.3s ease;
         }
 
-        .alloc-labels {
+        .ws-alloc-labels {
             display: flex;
             justify-content: space-between;
             font-size: 0.7rem;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 5px;
         }
 
-        /* Section Containers & Controls */
-        .section-header {
-            padding: 6px 16px 12px;
+        /* Section Titles */
+        .ws-section-title-bar {
+            padding: 0 16px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .section-header h2 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
+        .ws-section-title-bar h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
             color: #ffffff;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .badge-count {
-            background: var(--surface-elevated);
-            border: 1px solid var(--surface-border);
+        .ws-badge-count {
+            background: rgba(255, 255, 255, 0.08);
             font-size: 0.72rem;
             color: var(--text-secondary);
-            padding: 2px 7px;
+            padding: 2px 8px;
             border-radius: 12px;
             font-weight: 600;
         }
 
         /* Search & Filter Bar */
-        .filter-bar {
+        .ws-filter-row {
             padding: 0 16px 12px;
             display: flex;
             gap: 8px;
         }
 
-        .search-box {
+        .ws-search-input-box {
             flex: 1;
             background: var(--surface);
             border: 1px solid var(--surface-border);
-            border-radius: 10px;
-            padding: 8px 12px;
+            border-radius: 12px;
+            padding: 9px 12px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .search-box svg {
-            width: 14px;
-            height: 14px;
+        .ws-search-input-box svg {
+            width: 15px;
+            height: 15px;
             fill: var(--text-muted);
             flex-shrink: 0;
         }
 
-        .search-box input {
+        .ws-search-input-box input {
             background: transparent;
             border: none;
             outline: none;
             color: var(--text-main);
-            font-size: 0.82rem;
+            font-size: 0.85rem;
             width: 100%;
             user-select: auto;
         }
 
-        .search-box input::placeholder {
+        .ws-search-input-box input::placeholder {
             color: var(--text-muted);
         }
 
-        .sort-select {
+        .ws-sort-dropdown {
             background: var(--surface);
             border: 1px solid var(--surface-border);
-            border-radius: 10px;
+            border-radius: 12px;
             color: var(--text-secondary);
             font-size: 0.78rem;
-            font-weight: 500;
+            font-weight: 600;
             padding: 0 10px;
             outline: none;
             cursor: pointer;
         }
 
-        /* Holdings List */
-        .holdings-list {
+        /* Wealthsimple Holdings List */
+        .ws-holdings-list {
             padding: 0 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .holding-card {
+        .ws-holding-row {
             background: var(--surface);
             border: 1px solid var(--surface-border);
-            border-radius: 14px;
-            padding: 14px;
+            border-radius: 16px;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -446,35 +423,34 @@
             transition: all 0.15s ease;
         }
 
-        .holding-card:active {
-            transform: scale(0.98);
+        .ws-holding-row:active {
+            transform: scale(0.985);
             background: var(--surface-elevated);
-            border-color: rgba(255, 255, 255, 0.15);
         }
 
-        .holding-left {
+        .ws-row-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .ticker-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+        .ws-ticker-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
             background: var(--surface-elevated);
             border: 1px solid var(--surface-border);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.82rem;
-            font-weight: 700;
+            font-weight: 800;
             color: #ffffff;
             letter-spacing: -0.02em;
         }
 
-        .holding-info h3 {
-            font-size: 0.95rem;
+        .ws-row-info h3 {
+            font-size: 0.98rem;
             font-weight: 700;
             color: #ffffff;
             margin-bottom: 2px;
@@ -483,230 +459,218 @@
             gap: 6px;
         }
 
-        .holding-info p {
-            font-size: 0.75rem;
+        .ws-row-info p {
+            font-size: 0.78rem;
             color: var(--text-muted);
             font-weight: 500;
         }
 
-        .holding-right {
+        .ws-weight-tag {
+            font-size: 0.68rem;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .ws-row-right {
             text-align: right;
         }
 
-        .holding-val {
-            font-size: 0.95rem;
+        .ws-row-val {
+            font-size: 1rem;
             font-weight: 700;
             color: #ffffff;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
-        .pill-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            font-size: 0.72rem;
+        .ws-row-badge {
+            font-size: 0.78rem;
             font-weight: 600;
-            padding: 2px 7px;
-            border-radius: 6px;
         }
 
-        .pill-badge.green {
-            background: var(--green-glow);
-            color: var(--green);
+        .ws-row-badge.green {
+            color: var(--ws-green);
         }
 
-        .pill-badge.red {
-            background: var(--red-glow);
-            color: var(--red);
-        }
-
-        .weight-pill {
-            font-size: 0.65rem;
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text-secondary);
-            padding: 1px 5px;
-            border-radius: 4px;
-            font-weight: 500;
+        .ws-row-badge.red {
+            color: var(--ws-red);
         }
 
         /* Trades / Activity View */
-        .trades-filter-container {
+        .ws-filter-chip-strip {
             padding: 0 16px 12px;
             display: flex;
-            gap: 6px;
+            gap: 8px;
             overflow-x: auto;
         }
 
-        .filter-chip {
+        .ws-chip {
             background: var(--surface);
             border: 1px solid var(--surface-border);
             color: var(--text-secondary);
-            padding: 5px 12px;
-            border-radius: 16px;
-            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.15s;
         }
 
-        .filter-chip.active {
-            background: var(--surface-elevated);
+        .ws-chip.active {
+            background: rgba(255, 255, 255, 0.12);
             color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.18);
         }
 
-        .trades-list {
+        .ws-trades-list {
             padding: 0 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .trade-card {
+        .ws-trade-card {
             background: var(--surface);
             border: 1px solid var(--surface-border);
-            border-radius: 14px;
-            padding: 14px;
-            position: relative;
+            border-radius: 16px;
+            padding: 14px 16px;
         }
 
-        .trade-header {
+        .ws-trade-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
 
-        .trade-title-group {
+        .ws-trade-title-group {
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .action-tag {
+        .ws-action-badge {
             padding: 3px 8px;
             border-radius: 6px;
             font-size: 0.72rem;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.02em;
         }
 
-        .action-tag.BUY {
-            background: var(--green-glow);
-            color: var(--green);
-            border: 1px solid var(--green-border);
+        .ws-action-badge.BUY {
+            background: var(--ws-green-glow);
+            color: var(--ws-green);
+            border: 1px solid var(--ws-green-border);
         }
 
-        .action-tag.SELL {
-            background: var(--red-glow);
-            color: var(--red);
-            border: 1px solid var(--red-border);
+        .ws-action-badge.SELL {
+            background: var(--ws-red-glow);
+            color: var(--ws-red);
+            border: 1px solid var(--ws-red-border);
         }
 
-        .trade-symbol {
-            font-size: 0.95rem;
+        .ws-trade-symbol {
+            font-size: 1rem;
             font-weight: 700;
             color: #ffffff;
         }
 
-        .trade-time {
-            font-size: 0.72rem;
+        .ws-trade-time {
+            font-size: 0.75rem;
             color: var(--text-muted);
             font-weight: 500;
         }
 
-        .trade-body-grid {
+        .ws-trade-stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
             background: var(--surface-elevated);
             padding: 10px 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            margin-bottom: 8px;
         }
 
-        .trade-stat span {
+        .ws-trade-stat span {
             font-size: 0.7rem;
             color: var(--text-muted);
             display: block;
         }
 
-        .trade-stat strong {
-            font-size: 0.85rem;
+        .ws-trade-stat strong {
+            font-size: 0.88rem;
             font-weight: 600;
             color: var(--text-main);
         }
 
-        .trade-context-tags {
+        .ws-context-pills {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
         }
 
-        .context-tag {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.07);
+        .ws-context-tag {
+            background: rgba(255, 255, 255, 0.06);
             color: var(--text-secondary);
             font-size: 0.7rem;
-            padding: 2px 6px;
+            padding: 2px 7px;
             border-radius: 5px;
             font-weight: 500;
         }
 
-        .context-tag.hot {
-            color: #fb923c;
-            border-color: rgba(251, 146, 60, 0.2);
-            background: rgba(251, 146, 60, 0.08);
-        }
-
-        .context-tag.cool {
+        .ws-context-tag.cool {
             color: #38bdf8;
-            border-color: rgba(56, 189, 248, 0.2);
-            background: rgba(56, 189, 248, 0.08);
+            background: rgba(56, 189, 248, 0.1);
         }
 
-        .trade-thesis-toggle {
-            margin-top: 10px;
+        .ws-context-tag.hot {
+            color: #fb923c;
+            background: rgba(251, 146, 60, 0.1);
+        }
+
+        .ws-trade-thesis-toggle {
+            margin-top: 8px;
             padding-top: 8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.75rem;
-            color: var(--blue);
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.76rem;
+            color: #60a5fa;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 4px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
-        .trade-thesis-box {
+        .ws-trade-thesis-box {
             margin-top: 8px;
             background: rgba(0, 0, 0, 0.3);
-            border-left: 2px solid var(--blue);
-            padding: 8px 10px;
-            border-radius: 0 6px 6px 0;
-            font-size: 0.76rem;
-            line-height: 1.4;
+            border-left: 2px solid #3b82f6;
+            padding: 8px 12px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.78rem;
+            line-height: 1.45;
             color: #cbd5e1;
             user-select: text;
         }
 
         /* AI Theses View */
-        .ai-cycles-list {
+        .ws-ai-list {
             padding: 0 16px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }
 
-        .ai-cycle-card {
+        .ws-ai-card {
             background: var(--surface);
             border: 1px solid var(--surface-border);
             border-radius: 16px;
             padding: 16px;
         }
 
-        .cycle-header {
+        .ws-ai-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -715,175 +679,115 @@
             border-bottom: 1px solid var(--surface-border);
         }
 
-        .cycle-time-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .cycle-time-group svg {
-            width: 16px;
-            height: 16px;
-            fill: var(--purple);
-        }
-
-        .cycle-date {
-            font-size: 0.82rem;
+        .ws-ai-date {
+            font-size: 0.85rem;
             font-weight: 700;
             color: #ffffff;
         }
 
-        .cycle-bucket {
-            font-size: 0.68rem;
-            background: rgba(168, 85, 247, 0.12);
+        .ws-ai-bucket {
+            font-size: 0.7rem;
+            background: rgba(168, 85, 247, 0.15);
             color: #c084fc;
-            border: 1px solid rgba(168, 85, 247, 0.25);
-            padding: 2px 7px;
+            padding: 2px 8px;
             border-radius: 6px;
             font-weight: 600;
         }
 
-        .decision-item {
+        .ws-ai-decision {
             margin-bottom: 12px;
             padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .decision-item:last-child {
+        .ws-ai-decision:last-child {
             margin-bottom: 0;
             padding-bottom: 0;
             border-bottom: none;
         }
 
-        .decision-header {
+        .ws-decision-title-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 6px;
         }
 
-        .decision-title {
+        .ws-decision-sym {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #ffffff;
         }
 
-        .decision-pct {
-            font-size: 0.72rem;
+        .ws-decision-target {
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
         }
 
-        .decision-reason {
-            font-size: 0.78rem;
+        .ws-decision-body {
+            font-size: 0.8rem;
             line-height: 1.45;
             color: #cbd5e1;
             user-select: text;
         }
 
-        /* Stock Detail Sheet / View */
-        .stock-detail-view {
+        /* Stock Deep-Dive Drawer */
+        .ws-detail-view {
             padding: 0 16px 30px;
         }
 
-        .detail-top-nav {
+        .ws-detail-nav {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 16px;
         }
 
-        .back-circle-btn {
+        .ws-back-btn {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: var(--surface-elevated);
+            background: var(--surface);
             border: 1px solid var(--surface-border);
-            color: var(--text-main);
+            color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
         }
 
-        .back-circle-btn:active {
-            background: var(--surface-hover);
-        }
-
-        .back-circle-btn svg {
+        .ws-back-btn svg {
             width: 18px;
             height: 18px;
             fill: currentColor;
         }
 
-        .detail-symbol-title {
-            font-size: 1.25rem;
+        .ws-detail-sym-title {
+            font-size: 1.3rem;
             font-weight: 800;
-            color: #fff;
+            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .detail-hero-box {
-            background: var(--surface);
-            border: 1px solid var(--surface-border);
-            border-radius: 18px;
-            padding: 18px;
-            margin-bottom: 16px;
-        }
-
-        .detail-price {
-            font-size: 2.1rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: #ffffff;
-            margin-bottom: 4px;
-        }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .detail-box {
-            background: var(--surface);
-            border: 1px solid var(--surface-border);
-            padding: 12px 14px;
-            border-radius: 12px;
-        }
-
-        .detail-box span {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .detail-box h4 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        .external-links-group {
+        .ws-ext-links {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin: 14px 0 18px;
         }
 
-        .ext-btn {
+        .ws-ext-btn {
             flex: 1;
             padding: 10px;
-            background: var(--surface-elevated);
+            background: var(--surface);
             border: 1px solid var(--surface-border);
-            border-radius: 10px;
-            font-size: 0.76rem;
+            border-radius: 12px;
+            font-size: 0.78rem;
             font-weight: 600;
             color: #60a5fa;
             text-decoration: none;
@@ -893,25 +797,15 @@
             gap: 6px;
         }
 
-        .ext-btn:active {
-            background: var(--surface-hover);
-        }
-
-        .ext-btn svg {
-            width: 12px;
-            height: 12px;
-            fill: currentColor;
-        }
-
-        /* Bottom Fixed Navigation Bar */
-        .bottom-nav-bar {
+        /* Wealthsimple Fixed Bottom Bar */
+        .ws-bottom-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: calc(var(--safe-bottom) + 64px);
+            height: calc(var(--safe-bottom) + 60px);
             padding-bottom: var(--safe-bottom);
-            background: rgba(14, 16, 24, 0.94);
+            background: rgba(13, 14, 18, 0.94);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid var(--surface-border);
@@ -921,7 +815,7 @@
             z-index: 100;
         }
 
-        .nav-btn {
+        .ws-tab-btn {
             flex: 1;
             height: 100%;
             background: none;
@@ -937,32 +831,32 @@
             transition: color 0.15s;
         }
 
-        .nav-btn.active {
+        .ws-tab-btn.active {
             color: #ffffff;
         }
 
-        .nav-btn svg {
+        .ws-tab-btn svg {
             width: 22px;
             height: 22px;
             fill: currentColor;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s;
         }
 
-        .nav-btn.active svg {
+        .ws-tab-btn.active svg {
             transform: translateY(-2px);
-            fill: #3b82f6;
+            fill: #ffffff;
         }
 
-        .nav-btn span {
+        .ws-tab-btn span {
             font-size: 0.7rem;
             font-weight: 600;
         }
 
-        .nav-badge {
+        .ws-tab-badge {
             position: absolute;
-            top: 6px;
+            top: 8px;
             right: calc(50% - 18px);
-            background: #3b82f6;
+            background: var(--blue);
             color: #fff;
             font-size: 0.62rem;
             font-weight: 700;
@@ -971,27 +865,14 @@
             border: 2px solid var(--bg);
         }
 
-        /* Empty & Loading States */
-        .empty-state {
+        /* Empty State & Loader */
+        .ws-empty-box {
             padding: 40px 20px;
             text-align: center;
             color: var(--text-muted);
         }
 
-        .empty-state svg {
-            width: 44px;
-            height: 44px;
-            fill: var(--text-muted);
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-
-        .empty-state p {
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .loading-screen {
+        .ws-loader {
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -1000,109 +881,96 @@
             gap: 16px;
         }
 
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
+        .ws-spinner {
+            width: 36px;
+            height: 36px;
             border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: #3b82f6;
+            border-top-color: var(--ws-green);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-        }
-
-        .loading-text {
-            font-size: 0.88rem;
-            color: var(--text-secondary);
-            font-weight: 500;
         }
     </style>
 </head>
 <body>
     <div id="app">
         <!-- Loading Screen -->
-        <div v-if="loading && !data" class="loading-screen">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Connecting to Live TradeBot Feed...</div>
+        <div v-if="loading && !data" class="ws-loader">
+            <div class="ws-spinner"></div>
+            <div style="font-size: 0.88rem; color: var(--text-secondary); font-weight: 500;">Loading Portfolio...</div>
         </div>
 
         <div v-else>
-            <!-- STOCK DETAIL VIEW (DRAWER) -->
-            <div v-if="selectedStock" class="stock-detail-view">
-                <div class="detail-top-nav">
-                    <button class="back-circle-btn" @click="selectedStock = null">
+            <!-- STOCK DETAIL SHEET -->
+            <div v-if="selectedStock" class="ws-detail-view">
+                <div class="ws-detail-nav">
+                    <button class="ws-back-btn" @click="selectedStock = null">
                         <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
                     </button>
-                    <div class="detail-symbol-title">
+                    <div class="ws-detail-sym-title">
                         {{ selectedStock.symbol }}
-                        <span class="hero-badge">{{ currentMarket }}</span>
+                        <span class="ws-weight-tag">{{ currentMarket }}</span>
                     </div>
                     <div style="width: 36px;"></div>
                 </div>
 
-                <div class="detail-hero-box">
-                    <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Current Price</span>
-                    <div class="detail-price">{{ formatCurrency(selectedStock.currentPrice, currentMarket) }}</div>
-                    <div class="hero-pnl" :class="selectedStock.pl >= 0 ? 'positive' : 'negative'">
-                        {{ selectedStock.pl >= 0 ? '+' : '' }}{{ formatCurrency(selectedStock.pl, currentMarket) }} ({{ selectedStock.plPct >= 0 ? '+' : '' }}{{ selectedStock.plPct.toFixed(2) }}%) Unrealized
+                <div class="ws-hero" style="padding-left: 0; padding-right: 0;">
+                    <div class="ws-account-subtitle">Current Price</div>
+                    <div class="ws-balance-value">{{ formatCurrency(selectedStock.currentPrice, currentMarket) }}</div>
+                    <div class="ws-return-group" :class="selectedStock.pl >= 0 ? 'green' : 'red'">
+                        <span>{{ selectedStock.pl >= 0 ? '+' : '' }}{{ formatCurrency(selectedStock.pl, currentMarket) }} ({{ selectedStock.plPct >= 0 ? '+' : '' }}{{ selectedStock.plPct.toFixed(2) }}%)</span>
+                        <span class="ws-return-subtitle">Unrealized</span>
                     </div>
                 </div>
 
-                <div class="external-links-group">
-                    <a :href="getTradingViewUrl(selectedStock.symbol)" target="_blank" class="ext-btn">
-                        <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-                        TradingView Chart
+                <div class="ws-ext-links">
+                    <a :href="getTradingViewUrl(selectedStock.symbol)" target="_blank" class="ws-ext-btn">
+                        <svg style="width: 14px; height: 14px; fill: currentColor;" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                        TradingView
                     </a>
-                    <a :href="getYahooFinanceUrl(selectedStock.symbol)" target="_blank" class="ext-btn">
-                        <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                    <a :href="getYahooFinanceUrl(selectedStock.symbol)" target="_blank" class="ws-ext-btn">
+                        <svg style="width: 14px; height: 14px; fill: currentColor;" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
                         Yahoo Finance
                     </a>
                 </div>
 
-                <div class="detail-grid">
-                    <div class="detail-box">
-                        <span>Avg Cost Basis</span>
-                        <h4>{{ formatCurrency(selectedStock.avgCost, currentMarket) }}</h4>
-                    </div>
-                    <div class="detail-box">
-                        <span>Shares Owned</span>
-                        <h4>{{ selectedStock.shares.toLocaleString() }}</h4>
-                    </div>
-                    <div class="detail-box">
-                        <span>Total Est Value</span>
-                        <h4>{{ formatCurrency(selectedStock.value, currentMarket) }}</h4>
-                    </div>
-                    <div class="detail-box">
-                        <span>Portfolio Weight</span>
-                        <h4>{{ selectedStock.weightPct ? selectedStock.weightPct.toFixed(1) + '%' : (selectedStock.value / currentTotalValue * 100).toFixed(1) + '%' }}</h4>
-                    </div>
-                </div>
-
-                <!-- Stock Chart if history exists -->
-                <div v-if="hasStockHistory(selectedStock.symbol)" style="margin-bottom: 20px;">
-                    <div class="section-header" style="padding-left: 0; padding-right: 0;">
-                        <h2>30-Day Price History</h2>
-                    </div>
-                    <div class="hero-card" style="margin: 0; height: 180px; padding: 10px;">
-                        <canvas id="stockChart"></canvas>
+                <div class="ws-card" style="margin: 0 0 16px;">
+                    <div class="ws-metrics-grid">
+                        <div class="ws-metric-box">
+                            <span>Your Avg Cost</span>
+                            <strong>{{ formatCurrency(selectedStock.avgCost, currentMarket) }}</strong>
+                        </div>
+                        <div class="ws-metric-box">
+                            <span>Shares Owned</span>
+                            <strong>{{ selectedStock.shares.toLocaleString() }}</strong>
+                        </div>
+                        <div class="ws-metric-box">
+                            <span>Total Position Value</span>
+                            <strong>{{ formatCurrency(selectedStock.value, currentMarket) }}</strong>
+                        </div>
+                        <div class="ws-metric-box">
+                            <span>Portfolio Weight</span>
+                            <strong>{{ selectedStock.weightPct ? selectedStock.weightPct.toFixed(1) + '%' : (selectedStock.value / currentTotalValue * 100).toFixed(1) + '%' }}</strong>
+                        </div>
                     </div>
                 </div>
 
                 <!-- AI Theses for this stock -->
-                <div class="section-header" style="padding-left: 0; padding-right: 0; margin-top: 10px;">
-                    <h2>AI Decision History <span class="badge-count">{{ getThoughtsForStock(selectedStock.symbol).length }}</span></h2>
+                <div class="ws-section-title-bar" style="padding-left: 0; padding-right: 0;">
+                    <h2>AI Decision History <span class="ws-badge-count">{{ getThoughtsForStock(selectedStock.symbol).length }}</span></h2>
                 </div>
                 
-                <div class="ai-cycles-list" style="padding: 0;">
-                    <div v-for="(thought, idx) in getThoughtsForStock(selectedStock.symbol)" :key="idx" class="ai-cycle-card">
-                        <div class="cycle-header">
-                            <div class="cycle-time-group">
-                                <span class="action-tag" :class="thought.action">{{ thought.action }}</span>
-                                <span class="cycle-date">{{ formatRelativeDate(thought.timestamp) }}</span>
+                <div class="ws-ai-list" style="padding: 0;">
+                    <div v-for="(thought, idx) in getThoughtsForStock(selectedStock.symbol)" :key="idx" class="ws-ai-card">
+                        <div class="ws-ai-header">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="ws-action-badge" :class="thought.action">{{ thought.action }}</span>
+                                <span class="ws-ai-date">{{ formatRelativeDate(thought.timestamp) }}</span>
                             </div>
-                            <span class="decision-pct">Target: {{ formatPercent(thought.target_portfolio_pct) }}</span>
+                            <span class="ws-decision-target">Target: {{ formatPercent(thought.target_portfolio_pct) }}</span>
                         </div>
-                        <div class="decision-reason">{{ thought.reasoning }}</div>
+                        <div class="ws-decision-body">{{ thought.reasoning }}</div>
                     </div>
-                    <div v-if="getThoughtsForStock(selectedStock.symbol).length === 0" class="empty-state">
+                    <div v-if="getThoughtsForStock(selectedStock.symbol).length === 0" class="ws-empty-box">
                         <p>No historical AI decisions recorded for this position.</p>
                     </div>
                 </div>
@@ -1110,93 +978,91 @@
 
             <!-- MAIN APPLICATION TABS -->
             <div v-else>
-                <!-- TOP APP BAR -->
-                <header class="app-bar">
-                    <div class="brand-section">
-                        <div class="bot-avatar">
-                            <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5 2.5 2.5 0 0 0 7.5 18 2.5 2.5 0 0 0 10 15.5 2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5Z"/></svg>
+                <!-- TOP APP BAR / ACCOUNT SWITCHER -->
+                <header class="ws-app-bar">
+                    <div class="ws-account-pill">
+                        <div class="ws-acc-tab" :class="{active: currentMarket === 'US'}" @click="setMarket('US')">
+                            🇺🇸 US
                         </div>
-                        <div class="app-title-group">
-                            <h1>Auto-TradeBot</h1>
-                            <div class="status-pill">
-                                <span class="pulse-dot" :class="{amber: syncing, red: fetchError}"></span>
-                                <span>{{ syncing ? 'Syncing...' : (fetchError ? 'Offline (Cached)' : timeAgo) }}</span>
-                            </div>
+                        <div class="ws-acc-tab" :class="{active: currentMarket === 'TSX'}" @click="setMarket('TSX')">
+                            🇨🇦 TSX
                         </div>
                     </div>
 
-                    <button class="sync-btn" :class="{spinning: syncing}" @click="fetchData(true)" title="Refresh Data">
-                        <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-                        <span>Sync</span>
-                    </button>
+                    <div class="ws-status-right">
+                        <div class="ws-live-badge">
+                            <span class="pulse-dot" :class="{amber: syncing, red: fetchError}"></span>
+                            <span>{{ syncing ? 'Syncing...' : (fetchError ? 'Offline' : timeAgo) }}</span>
+                        </div>
+                        <button class="ws-sync-icon-btn" :class="{spinning: syncing}" @click="fetchData(true)" title="Refresh">
+                            <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                        </button>
+                    </div>
                 </header>
 
-                <!-- MARKET SWITCHER (US vs TSX) -->
-                <div class="market-switcher-container">
-                    <div class="market-switcher">
-                        <div class="market-tab" :class="{active: currentMarket === 'US'}" @click="currentMarket = 'US'">
-                            🇺🇸 Live US Portfolio
-                        </div>
-                        <div class="market-tab" :class="{active: currentMarket === 'TSX'}" @click="currentMarket = 'TSX'">
-                            🇨🇦 TSX Portfolio
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 1: PORTFOLIO & HOLDINGS -->
+                <!-- TAB 1: PORTFOLIO -->
                 <div v-show="activeTab === 'portfolio'">
-                    <!-- Hero Valuation Card -->
-                    <div class="hero-card">
-                        <div class="hero-subtitle">
-                            <span>{{ currentMarket === 'US' ? 'Net Liquidation Value' : 'Virtual TSX Budget' }}</span>
-                            <span class="hero-badge">{{ currentMarket === 'US' ? 'Interactive Brokers' : 'Paper Compounder' }}</span>
-                        </div>
-                        <div class="hero-value">{{ formatCurrency(currentTotalValue, currentMarket) }}</div>
-                        <div class="hero-pnl" :class="totalChange >= 0 ? 'positive' : 'negative'">
-                            {{ totalChange >= 0 ? '+' : '' }}{{ formatCurrency(totalChange, currentMarket) }} ({{ earliestVal > 0 ? (totalChange / earliestVal * 100).toFixed(2) : 0 }}%) All-time
+                    <!-- Wealthsimple Hero -->
+                    <div class="ws-hero">
+                        <div class="ws-account-subtitle">{{ currentMarket === 'US' ? 'Live US Portfolio' : 'Virtual TSX Portfolio' }}</div>
+                        <div class="ws-balance-value">{{ formatCurrency(displayHeroValue, currentMarket) }}</div>
+                        <div class="ws-return-group" :class="displayReturnDollar >= 0 ? 'green' : 'red'">
+                            <span>{{ displayReturnDollar >= 0 ? '+' : '' }}{{ formatCurrency(displayReturnDollar, currentMarket) }} ({{ displayReturnPct >= 0 ? '+' : '' }}{{ displayReturnPct.toFixed(2) }}%)</span>
+                            <span class="ws-return-subtitle">{{ displayReturnLabel }}</span>
                         </div>
 
-                        <!-- Mini Equity Chart -->
-                        <div class="hero-chart-container">
+                        <!-- Wealthsimple Chart with Scrubbing Handler -->
+                        <div class="ws-chart-wrapper" id="chartWrapper" @touchstart="onScrubTouchStart" @touchmove="onScrubTouchMove" @touchend="onScrubEnd" @mousemove="onScrubMouseMove" @mouseleave="onScrubEnd">
                             <canvas id="portfolioChart"></canvas>
                         </div>
 
-                        <!-- Capital Breakdown & Allocation Bar -->
-                        <div class="breakdown-row">
-                            <div class="breakdown-item">
-                                <span>Invested Equity</span>
+                        <!-- Wealthsimple Timeframe Selector Pills -->
+                        <div class="ws-timeframe-bar">
+                            <button class="ws-tf-pill" :class="{active: selectedTimeframe === '1D'}" @click="setTimeframe('1D')">1D</button>
+                            <button class="ws-tf-pill" :class="{active: selectedTimeframe === '1W'}" @click="setTimeframe('1W')">1W</button>
+                            <button class="ws-tf-pill" :class="{active: selectedTimeframe === '1M'}" @click="setTimeframe('1M')">1M</button>
+                            <button class="ws-tf-pill" :class="{active: selectedTimeframe === 'ALL'}" @click="setTimeframe('ALL')">ALL</button>
+                        </div>
+                    </div>
+
+                    <!-- Account Breakdown Card -->
+                    <div class="ws-card">
+                        <div class="ws-card-header">
+                            <span>Account Details</span>
+                            <span class="ws-weight-tag">{{ currentMarket === 'US' ? 'IBKR LIVE' : 'PAPER TSX' }}</span>
+                        </div>
+                        <div class="ws-metrics-grid">
+                            <div class="ws-metric-box">
+                                <span>Invested Assets</span>
                                 <strong>{{ formatCurrency(investedValue, currentMarket) }}</strong>
                             </div>
-                            <div class="breakdown-item">
-                                <span>{{ currentMarket === 'US' ? 'Cash / Margin' : 'Virtual Cash' }}</span>
+                            <div class="ws-metric-box">
+                                <span>{{ currentMarket === 'US' ? 'Available Cash / Margin' : 'Virtual Cash' }}</span>
                                 <strong>{{ formatCurrency(cashValue, currentMarket) }}</strong>
                             </div>
                         </div>
-
-                        <div class="alloc-bar-container">
-                            <div class="alloc-bar">
-                                <div class="alloc-fill-invested" :style="{width: Math.min(100, Math.max(0, (investedValue / currentTotalValue * 100))) + '%'}"></div>
-                                <div class="alloc-fill-cash" :style="{width: Math.min(100, Math.max(0, (cashValue / currentTotalValue * 100))) + '%'}"></div>
-                            </div>
-                            <div class="alloc-labels">
-                                <span>Invested: {{ (investedValue / (currentTotalValue || 1) * 100).toFixed(1) }}%</span>
-                                <span>Cash: {{ (cashValue / (currentTotalValue || 1) * 100).toFixed(1) }}%</span>
-                            </div>
+                        <div class="ws-alloc-bar">
+                            <div class="ws-alloc-fill-invested" :style="{width: Math.min(100, Math.max(0, (investedValue / currentTotalValue * 100))) + '%'}"></div>
+                            <div class="ws-alloc-fill-cash" :style="{width: Math.min(100, Math.max(0, (cashValue / currentTotalValue * 100))) + '%'}"></div>
+                        </div>
+                        <div class="ws-alloc-labels">
+                            <span>Invested: {{ (investedValue / (currentTotalValue || 1) * 100).toFixed(1) }}%</span>
+                            <span>Cash: {{ (cashValue / (currentTotalValue || 1) * 100).toFixed(1) }}%</span>
                         </div>
                     </div>
 
                     <!-- Holdings Section -->
-                    <div class="section-header">
-                        <h2>Holdings <span class="badge-count">{{ filteredHoldings.length }}</span></h2>
+                    <div class="ws-section-title-bar">
+                        <h2>Holdings <span class="ws-badge-count">{{ filteredHoldings.length }}</span></h2>
                     </div>
 
-                    <!-- Search & Filter Controls -->
-                    <div class="filter-bar">
-                        <div class="search-box">
+                    <!-- Search & Sort -->
+                    <div class="ws-filter-row">
+                        <div class="ws-search-input-box">
                             <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                            <input type="text" v-model="searchQuery" placeholder="Filter holdings by symbol...">
+                            <input type="text" v-model="searchQuery" placeholder="Search holdings...">
                         </div>
-                        <select v-model="sortCriteria" class="sort-select">
+                        <select v-model="sortCriteria" class="ws-sort-dropdown">
                             <option value="value_desc">Val: High-Low</option>
                             <option value="pl_desc">Gain: High-Low</option>
                             <option value="pl_asc">Loss: High-Low</option>
@@ -1204,160 +1070,154 @@
                         </select>
                     </div>
 
-                    <!-- Holdings List -->
-                    <div class="holdings-list">
-                        <div v-for="h in filteredHoldings" :key="h.symbol" class="holding-card" @click="selectStock(h)">
-                            <div class="holding-left">
-                                <div class="ticker-avatar">{{ h.symbol.split('.')[0].slice(0, 4) }}</div>
-                                <div class="holding-info">
+                    <!-- Holdings Rows -->
+                    <div class="ws-holdings-list">
+                        <div v-for="h in filteredHoldings" :key="h.symbol" class="ws-holding-row" @click="selectStock(h)">
+                            <div class="ws-row-left">
+                                <div class="ws-ticker-circle">{{ h.symbol.split('.')[0].slice(0, 4) }}</div>
+                                <div class="ws-row-info">
                                     <h3>
                                         {{ h.symbol }}
-                                        <span class="weight-pill">{{ h.weightPct ? h.weightPct.toFixed(1) + '%' : (h.value / currentTotalValue * 100).toFixed(1) + '%' }}</span>
+                                        <span class="ws-weight-tag">{{ h.weightPct ? h.weightPct.toFixed(1) + '%' : (h.value / currentTotalValue * 100).toFixed(1) + '%' }}</span>
                                     </h3>
-                                    <p>{{ h.shares.toLocaleString() }} sh @ {{ formatCurrency(h.avgCost, currentMarket) }}</p>
+                                    <p>{{ h.shares.toLocaleString() }} shares</p>
                                 </div>
                             </div>
-                            <div class="holding-right">
-                                <div class="holding-val">{{ formatCurrency(h.value, currentMarket) }}</div>
-                                <div class="pill-badge" :class="h.plPct >= 0 ? 'green' : 'red'">
+                            <div class="ws-row-right">
+                                <div class="ws-row-val">{{ formatCurrency(h.value, currentMarket) }}</div>
+                                <div class="ws-row-badge" :class="h.plPct >= 0 ? 'green' : 'red'">
                                     {{ h.plPct >= 0 ? '+' : '' }}{{ h.plPct.toFixed(2) }}%
                                 </div>
                             </div>
                         </div>
 
-                        <div v-if="filteredHoldings.length === 0" class="empty-state">
-                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
-                            <p>No holdings found matching criteria.</p>
+                        <div v-if="filteredHoldings.length === 0" class="ws-empty-box">
+                            <p>No holdings found.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- TAB 2: TODAY'S TRADES & ACTIVITY -->
                 <div v-show="activeTab === 'trades'">
-                    <div class="section-header">
-                        <h2>Today's Trades & Orders <span class="badge-count">{{ filteredTrades.length }}</span></h2>
+                    <div class="ws-section-title-bar">
+                        <h2>Activity <span class="ws-badge-count">{{ filteredTrades.length }}</span></h2>
                     </div>
 
-                    <!-- Market & Action Filter Chips -->
-                    <div class="trades-filter-container">
-                        <button class="filter-chip" :class="{active: tradeMarketFilter === 'ALL'}" @click="tradeMarketFilter = 'ALL'">All Markets</button>
-                        <button class="filter-chip" :class="{active: tradeMarketFilter === 'US'}" @click="tradeMarketFilter = 'US'">🇺🇸 US Only</button>
-                        <button class="filter-chip" :class="{active: tradeMarketFilter === 'TSX'}" @click="tradeMarketFilter = 'TSX'">🇨🇦 TSX Only</button>
-                        <button class="filter-chip" :class="{active: tradeActionFilter === 'ALL'}" @click="tradeActionFilter = 'ALL'">All Actions</button>
-                        <button class="filter-chip" :class="{active: tradeActionFilter === 'BUY'}" @click="tradeActionFilter = 'BUY'">Buys Only</button>
-                        <button class="filter-chip" :class="{active: tradeActionFilter === 'SELL'}" @click="tradeActionFilter = 'SELL'">Sells Only</button>
+                    <!-- Filter Chips -->
+                    <div class="ws-filter-chip-strip">
+                        <button class="ws-chip" :class="{active: tradeMarketFilter === 'ALL'}" @click="tradeMarketFilter = 'ALL'">All</button>
+                        <button class="ws-chip" :class="{active: tradeMarketFilter === 'US'}" @click="tradeMarketFilter = 'US'">🇺🇸 US</button>
+                        <button class="ws-chip" :class="{active: tradeMarketFilter === 'TSX'}" @click="tradeMarketFilter = 'TSX'">🇨🇦 TSX</button>
+                        <button class="ws-chip" :class="{active: tradeActionFilter === 'ALL'}" @click="tradeActionFilter = 'ALL'">All Actions</button>
+                        <button class="ws-chip" :class="{active: tradeActionFilter === 'BUY'}" @click="tradeActionFilter = 'BUY'">Buys</button>
+                        <button class="ws-chip" :class="{active: tradeActionFilter === 'SELL'}" @click="tradeActionFilter = 'SELL'">Sells</button>
                     </div>
 
-                    <div class="trades-list">
-                        <div v-for="(trade, idx) in filteredTrades" :key="idx" class="trade-card">
-                            <div class="trade-header">
-                                <div class="trade-title-group">
-                                    <span class="action-tag" :class="trade.action">{{ trade.action }}</span>
-                                    <span class="trade-symbol">{{ trade.symbol }}</span>
-                                    <span class="weight-pill">{{ trade.bucket === 'TSX_VIRTUAL' ? 'TSX' : 'US' }}</span>
+                    <div class="ws-trades-list">
+                        <div v-for="(trade, idx) in filteredTrades" :key="idx" class="ws-trade-card">
+                            <div class="ws-trade-header">
+                                <div class="ws-trade-title-group">
+                                    <span class="ws-action-badge" :class="trade.action">{{ trade.action }}</span>
+                                    <span class="ws-trade-symbol">{{ trade.symbol }}</span>
+                                    <span class="ws-weight-tag">{{ trade.bucket === 'TSX_VIRTUAL' ? 'TSX' : 'US' }}</span>
                                 </div>
-                                <span class="trade-time">{{ formatTime(trade.timestamp) }}</span>
+                                <span class="ws-trade-time">{{ formatTime(trade.timestamp) }}</span>
                             </div>
 
-                            <div class="trade-body-grid">
-                                <div class="trade-stat">
+                            <div class="ws-trade-stats-grid">
+                                <div class="ws-trade-stat">
                                     <span>Quantity & Est Price</span>
                                     <strong>{{ trade.quantity }} @ {{ formatCurrency(trade.estimated_price, trade.bucket) }}</strong>
                                 </div>
-                                <div class="trade-stat">
-                                    <span>Total Execution Value</span>
+                                <div class="ws-trade-stat">
+                                    <span>Total Execution</span>
                                     <strong>{{ formatCurrency(trade.quantity * trade.estimated_price, trade.bucket) }}</strong>
                                 </div>
-                                <div class="trade-stat">
+                                <div class="ws-trade-stat">
                                     <span>Position Shift</span>
                                     <strong>{{ trade.previous_shares }} ➔ {{ trade.new_shares }} sh</strong>
                                 </div>
-                                <div class="trade-stat">
+                                <div class="ws-trade-stat">
                                     <span>Market Signals</span>
-                                    <div class="trade-context-tags" style="margin-top: 2px;">
-                                        <span v-if="trade.market_context && trade.market_context['14_day_rsi']" class="context-tag" :class="trade.market_context['14_day_rsi'] < 30 ? 'cool' : (trade.market_context['14_day_rsi'] > 70 ? 'hot' : '')">
+                                    <div class="ws-context-pills" style="margin-top: 3px;">
+                                        <span v-if="trade.market_context && trade.market_context['14_day_rsi']" class="ws-context-tag" :class="trade.market_context['14_day_rsi'] < 30 ? 'cool' : (trade.market_context['14_day_rsi'] > 70 ? 'hot' : '')">
                                             RSI: {{ trade.market_context['14_day_rsi'].toFixed(1) }}
                                         </span>
-                                        <span v-if="trade.market_context && trade.market_context['5_day_delta'] !== undefined" class="context-tag">
+                                        <span v-if="trade.market_context && trade.market_context['5_day_delta'] !== undefined" class="ws-context-tag">
                                             5D: {{ trade.market_context['5_day_delta'] > 0 ? '+' : '' }}{{ trade.market_context['5_day_delta'] }}%
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Expandable AI Thesis for Trade -->
-                            <div v-if="getReasonForTrade(trade)" @click="toggleTradeExpand(idx)" class="trade-thesis-toggle">
-                                <svg style="width: 12px; height: 12px; fill: currentColor;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                                <span>{{ expandedTrades[idx] ? 'Hide AI Reasoning' : 'View AI Reasoning' }}</span>
+                            <!-- Expandable AI Thesis -->
+                            <div v-if="getReasonForTrade(trade)" @click="toggleTradeExpand(idx)" class="ws-trade-thesis-toggle">
+                                <svg style="width: 13px; height: 13px; fill: currentColor;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                <span>{{ expandedTrades[idx] ? 'Hide AI Thesis' : 'View AI Thesis' }}</span>
                             </div>
-                            <div v-if="expandedTrades[idx]" class="trade-thesis-box">
+                            <div v-if="expandedTrades[idx]" class="ws-trade-thesis-box">
                                 {{ getReasonForTrade(trade) }}
                             </div>
                         </div>
 
-                        <div v-if="filteredTrades.length === 0" class="empty-state">
-                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
+                        <div v-if="filteredTrades.length === 0" class="ws-empty-box">
                             <p>No trades executed today matching filter.</p>
-                            <p style="font-size: 0.75rem; margin-top: 4px;">The bot executes rebalances during market cycles (9:30, 13:00, 15:30 EST).</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- TAB 3: AI INTELLIGENCE & THESES -->
+                <!-- TAB 3: AI THESES -->
                 <div v-show="activeTab === 'ai'">
-                    <div class="section-header">
-                        <h2>AI Strategic Theses <span class="badge-count">{{ allDecisionsList.length }}</span></h2>
+                    <div class="ws-section-title-bar">
+                        <h2>Insights <span class="ws-badge-count">{{ allDecisionsList.length }}</span></h2>
                     </div>
 
-                    <div class="filter-bar">
-                        <div class="search-box">
+                    <div class="ws-filter-row">
+                        <div class="ws-search-input-box">
                             <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                             <input type="text" v-model="aiSearchQuery" placeholder="Search thesis by ticker or keyword...">
                         </div>
                     </div>
 
-                    <div class="ai-cycles-list">
-                        <div v-for="(cycle, cIdx) in filteredAiCycles" :key="cIdx" class="ai-cycle-card">
-                            <div class="cycle-header">
-                                <div class="cycle-time-group">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2"/></svg>
-                                    <span class="cycle-date">{{ formatRelativeDate(cycle.timestamp) }}</span>
-                                </div>
-                                <span class="cycle-bucket">{{ cycle.bucket === 'TSX_VIRTUAL' ? '🇨🇦 TSX' : '🇺🇸 US LIVE' }}</span>
+                    <div class="ws-ai-list">
+                        <div v-for="(cycle, cIdx) in filteredAiCycles" :key="cIdx" class="ws-ai-card">
+                            <div class="ws-ai-header">
+                                <span class="ws-ai-date">{{ formatRelativeDate(cycle.timestamp) }}</span>
+                                <span class="ws-ai-bucket">{{ cycle.bucket === 'TSX_VIRTUAL' ? '🇨🇦 TSX' : '🇺🇸 US LIVE' }}</span>
                             </div>
 
-                            <div v-for="(dec, dIdx) in cycle.decisions" :key="dIdx" class="decision-item">
-                                <div class="decision-header">
-                                    <div class="decision-title">
-                                        <span class="action-tag" :class="dec.action">{{ dec.action }}</span>
+                            <div v-for="(dec, dIdx) in cycle.decisions" :key="dIdx" class="ws-ai-decision">
+                                <div class="ws-decision-title-row">
+                                    <div class="ws-decision-sym">
+                                        <span class="ws-action-badge" :class="dec.action">{{ dec.action }}</span>
                                         <span>{{ dec.symbol }}</span>
                                     </div>
-                                    <span class="decision-pct">Target: {{ formatPercent(dec.target_portfolio_pct) }}</span>
+                                    <span class="ws-decision-target">Target: {{ formatPercent(dec.target_portfolio_pct) }}</span>
                                 </div>
-                                <div class="decision-reason">{{ dec.reasoning }}</div>
+                                <div class="ws-decision-body">{{ dec.reasoning }}</div>
                             </div>
                         </div>
 
-                        <div v-if="filteredAiCycles.length === 0" class="empty-state">
+                        <div v-if="filteredAiCycles.length === 0" class="ws-empty-box">
                             <p>No AI theses found matching your search.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- BOTTOM FIXED NAVIGATION BAR -->
-                <nav class="bottom-nav-bar">
-                    <button class="nav-btn" :class="{active: activeTab === 'portfolio'}" @click="activeTab = 'portfolio'">
-                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
-                        <span>Portfolio</span>
+                <!-- WEALTHSIMPLE BOTTOM NAVIGATION BAR -->
+                <nav class="ws-bottom-bar">
+                    <button class="ws-tab-btn" :class="{active: activeTab === 'portfolio'}" @click="activeTab = 'portfolio'">
+                        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        <span>Home</span>
                     </button>
-                    <button class="nav-btn" :class="{active: activeTab === 'trades'}" @click="activeTab = 'trades'">
+                    <button class="ws-tab-btn" :class="{active: activeTab === 'trades'}" @click="activeTab = 'trades'">
                         <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-                        <span>Trades</span>
-                        <span v-if="data && data.trades && data.trades.length > 0" class="nav-badge">{{ data.trades.length }}</span>
+                        <span>Activity</span>
+                        <span v-if="data && data.trades && data.trades.length > 0" class="ws-tab-badge">{{ data.trades.length }}</span>
                     </button>
-                    <button class="nav-btn" :class="{active: activeTab === 'ai'}" @click="activeTab = 'ai'">
+                    <button class="ws-tab-btn" :class="{active: activeTab === 'ai'}" @click="activeTab = 'ai'">
                         <svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
-                        <span>AI Theses</span>
+                        <span>Insights</span>
                     </button>
                 </nav>
             </div>
@@ -1376,6 +1236,7 @@
                     data: null,
                     currentMarket: 'US', // 'US' or 'TSX'
                     activeTab: 'portfolio', // 'portfolio', 'trades', 'ai'
+                    selectedTimeframe: 'ALL', // '1D', '1W', '1M', 'ALL'
                     selectedStock: null,
                     searchQuery: '',
                     sortCriteria: 'value_desc',
@@ -1384,9 +1245,15 @@
                     aiSearchQuery: '',
                     expandedTrades: {},
                     chartInstance: null,
-                    stockChartInstance: null,
                     timeAgo: 'Just now',
-                    timerInterval: null
+                    timerInterval: null,
+                    
+                    // Scrubbing state
+                    isScrubbing: false,
+                    scrubValue: null,
+                    scrubDate: null,
+                    scrubReturnDollar: null,
+                    scrubReturnPct: null
                 }
             },
             computed: {
@@ -1413,24 +1280,106 @@
                 investedValue() {
                     return Math.max(0, this.currentTotalValue - this.cashValue);
                 },
-                earliestVal() {
-                    if (!this.data || !this.data.portfolio_history || this.data.portfolio_history.length === 0) return this.currentTotalValue || 1;
-                    const hist = this.data.portfolio_history;
-                    const earliest = hist[0];
-                    const val = this.currentMarket === 'US' ? earliest.us_value : earliest.tsx_value;
-                    return val || 1;
+                
+                // Full normalized history (always starts with $1,000,000 baseline at index 0)
+                normalizedHistory() {
+                    if (!this.data || !this.data.portfolio_history) return [];
+                    let hist = [...this.data.portfolio_history];
+                    
+                    // Guarantee baseline $1,000,000 entry at start if missing
+                    const hasBaseline = hist.length > 0 && (hist[0].date === 'Inception' || hist[0].date === 'Start' || hist[0].us_value === 1000000.0);
+                    if (!hasBaseline) {
+                        hist.unshift({
+                            date: 'Inception',
+                            us_value: 1000000.0,
+                            tsx_value: 1000000.0
+                        });
+                    }
+                    
+                    // Append today's live point at the end
+                    const lastEntry = hist[hist.length - 1];
+                    const curVal = this.currentTotalValue;
+                    if (curVal > 0) {
+                        const lastVal = this.currentMarket === 'US' ? lastEntry.us_value : lastEntry.tsx_value;
+                        if (Math.abs(curVal - lastVal) > 0.01) {
+                            hist.push({
+                                date: 'Now',
+                                us_value: this.currentMarket === 'US' ? curVal : lastEntry.us_value,
+                                tsx_value: this.currentMarket === 'TSX' ? curVal : lastEntry.tsx_value
+                            });
+                        }
+                    }
+                    return hist;
                 },
-                totalChange() {
-                    if (!this.data || !this.data.portfolio_history || this.data.portfolio_history.length === 0) return 0;
-                    return this.currentTotalValue - this.earliestVal;
+                
+                // Filtered history points based on selected timeframe
+                filteredHistory() {
+                    const all = this.normalizedHistory;
+                    if (all.length === 0) return [];
+                    
+                    if (this.selectedTimeframe === 'ALL') {
+                        return all;
+                    } else if (this.selectedTimeframe === '1M') {
+                        // Return entries in the last 30 days
+                        return all.slice(Math.max(1, all.length - 22)); // ~1 trading month
+                    } else if (this.selectedTimeframe === '1W') {
+                        return all.slice(Math.max(1, all.length - 6)); // ~1 trading week
+                    } else if (this.selectedTimeframe === '1D') {
+                        // Last 2 points for 1-day delta
+                        return all.slice(Math.max(1, all.length - 2));
+                    }
+                    return all;
                 },
+                
+                // Base value for current timeframe calculation
+                timeframeBaseValue() {
+                    if (this.selectedTimeframe === 'ALL') {
+                        return 1000000.0; // Inception baseline
+                    }
+                    const points = this.filteredHistory;
+                    if (points.length === 0) return this.currentTotalValue || 1000000.0;
+                    const first = points[0];
+                    const val = this.currentMarket === 'US' ? first.us_value : first.tsx_value;
+                    return val || this.currentTotalValue || 1;
+                },
+                
+                // Return calculations for hero section
+                defaultReturnDollar() {
+                    return this.currentTotalValue - this.timeframeBaseValue;
+                },
+                defaultReturnPct() {
+                    const base = this.timeframeBaseValue;
+                    if (base <= 0) return 0;
+                    return (this.defaultReturnDollar / base) * 100;
+                },
+                
+                // Displayed Hero Values (live or scrubbed)
+                displayHeroValue() {
+                    return this.isScrubbing ? this.scrubValue : this.currentTotalValue;
+                },
+                displayReturnDollar() {
+                    return this.isScrubbing ? this.scrubReturnDollar : this.defaultReturnDollar;
+                },
+                displayReturnPct() {
+                    return this.isScrubbing ? this.scrubReturnPct : this.defaultReturnPct;
+                },
+                displayReturnLabel() {
+                    if (this.isScrubbing) {
+                        return this.scrubDate || '';
+                    }
+                    if (this.selectedTimeframe === 'ALL') return 'All time';
+                    if (this.selectedTimeframe === '1M') return 'Past month';
+                    if (this.selectedTimeframe === '1W') return 'Past week';
+                    if (this.selectedTimeframe === '1D') return 'Today';
+                    return '';
+                },
+                
                 currentHoldings() {
                     if (!this.data) return [];
                     const str = this.currentMarket === 'US' ? this.data.us_positions : this.data.tsx_positions;
                     if (!str || str === "None") return [];
                     
                     const items = [];
-                    // Matches both "SYM: 123 shares @ Avg Cost $45.67 (Est Value: $5678.90)" and with ", 8.2%"
                     const regex = /([A-Z0-9.-]+):\s*([\d.]+)\s*shares\s*@\s*Avg Cost\s*\$([\d.]+)\s*\(Est Value:\s*\$([\d.]+)(?:,\s*([\d.]+)%)?\)/g;
                     let match;
                     while ((match = regex.exec(str)) !== null) {
@@ -1490,14 +1439,8 @@
                     return list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 },
                 allDecisionsList() {
-                    if (!this.data) return [];
-                    const list = [];
-                    if (this.data.all_time_decisions) {
-                        for (const cycle of this.data.all_time_decisions) {
-                            list.push(cycle);
-                        }
-                    }
-                    return list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    if (!this.data || !this.data.all_time_decisions) return [];
+                    return [...this.data.all_time_decisions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 },
                 filteredAiCycles() {
                     if (!this.aiSearchQuery.trim()) return this.allDecisionsList;
@@ -1516,19 +1459,13 @@
                         this.renderPortfolioChart();
                     });
                 },
+                selectedTimeframe() {
+                    this.$nextTick(() => {
+                        this.renderPortfolioChart();
+                    });
+                },
                 activeTab(tab) {
                     if (tab === 'portfolio') {
-                        this.$nextTick(() => {
-                            this.renderPortfolioChart();
-                        });
-                    }
-                },
-                selectedStock(stock) {
-                    if (stock) {
-                        this.$nextTick(() => {
-                            this.renderStockChart();
-                        });
-                    } else if (this.activeTab === 'portfolio') {
                         this.$nextTick(() => {
                             this.renderPortfolioChart();
                         });
@@ -1536,6 +1473,14 @@
                 }
             },
             methods: {
+                setMarket(m) {
+                    this.currentMarket = m;
+                    this.isScrubbing = false;
+                },
+                setTimeframe(tf) {
+                    this.selectedTimeframe = tf;
+                    this.isScrubbing = false;
+                },
                 formatCurrency(val, market = 'US') {
                     if (val === undefined || val === null || isNaN(val)) return '$0.00';
                     const isCad = market === 'TSX' || (typeof market === 'string' && (market.includes('TSX') || market.endsWith('.TO')));
@@ -1582,12 +1527,10 @@
                 },
                 getReasonForTrade(trade) {
                     if (!this.data) return null;
-                    // Check today's decisions first
                     if (this.data.decisions) {
                         const d = this.data.decisions.find(x => x.symbol === trade.symbol && x.action === trade.action);
                         if (d && d.reasoning) return d.reasoning;
                     }
-                    // Check all_time_decisions
                     const thoughts = this.getThoughtsForStock(trade.symbol);
                     if (thoughts.length > 0) return thoughts[0].reasoning;
                     return null;
@@ -1609,9 +1552,6 @@
                     }
                     return thoughts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 },
-                hasStockHistory(symbol) {
-                    return this.data && this.data.stock_histories && this.data.stock_histories[symbol] && this.data.stock_histories[symbol].length > 1;
-                },
                 getTradingViewUrl(symbol) {
                     const clean = symbol.replace('.TO', '');
                     const prefix = symbol.endsWith('.TO') ? 'TSX:' : '';
@@ -1620,28 +1560,88 @@
                 getYahooFinanceUrl(symbol) {
                     return `https://finance.yahoo.com/quote/${symbol}`;
                 },
+                
+                // WEALTHSIMPLE SCRUBBING HANDLERS
+                onScrubTouchStart(e) {
+                    if (e.touches && e.touches.length > 0) {
+                        this.handleScrub(e.touches[0].clientX);
+                    }
+                },
+                onScrubTouchMove(e) {
+                    if (e.touches && e.touches.length > 0) {
+                        this.handleScrub(e.touches[0].clientX);
+                    }
+                },
+                onScrubMouseMove(e) {
+                    if (e.buttons === 1 || e.type === 'mousemove') {
+                        this.handleScrub(e.clientX);
+                    }
+                },
+                onScrubEnd() {
+                    this.isScrubbing = false;
+                    this.scrubValue = null;
+                    this.scrubDate = null;
+                    this.scrubReturnDollar = null;
+                    this.scrubReturnPct = null;
+                },
+                handleScrub(clientX) {
+                    const wrapper = document.getElementById('chartWrapper');
+                    if (!wrapper || !this.chartInstance) return;
+                    
+                    const rect = wrapper.getBoundingClientRect();
+                    const relativeX = clientX - rect.left;
+                    const width = rect.width;
+                    const ratio = Math.max(0, Math.min(1, relativeX / width));
+                    
+                    const points = this.filteredHistory;
+                    if (points.length === 0) return;
+                    
+                    const index = Math.round(ratio * (points.length - 1));
+                    const entry = points[index];
+                    if (!entry) return;
+                    
+                    const pointVal = this.currentMarket === 'US' ? entry.us_value : entry.tsx_value;
+                    this.isScrubbing = true;
+                    this.scrubValue = pointVal;
+                    
+                    // Format scrub date
+                    if (entry.date === 'Inception' || entry.date === 'Start') {
+                        this.scrubDate = 'Inception Baseline';
+                    } else if (entry.date === 'Now') {
+                        this.scrubDate = 'Today (Live)';
+                    } else {
+                        const parts = entry.date.split('-');
+                        this.scrubDate = parts.length === 3 ? new Date(entry.date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : entry.date;
+                    }
+                    
+                    const base = this.timeframeBaseValue;
+                    this.scrubReturnDollar = pointVal - base;
+                    this.scrubReturnPct = base > 0 ? ((pointVal - base) / base) * 100 : 0;
+                },
+                
+                // RENDER WEALTHSIMPLE CHART
                 renderPortfolioChart() {
                     const ctx = document.getElementById('portfolioChart');
-                    if (!ctx || !this.data || !this.data.portfolio_history) return;
+                    if (!ctx) return;
                     if (this.chartInstance) {
                         this.chartInstance.destroy();
                         this.chartInstance = null;
                     }
                     
-                    const hist = this.data.portfolio_history;
-                    const dataPoints = hist.map(h => this.currentMarket === 'US' ? h.us_value : h.tsx_value);
-                    const labels = hist.map(h => {
+                    const points = this.filteredHistory;
+                    if (points.length === 0) return;
+                    
+                    const dataPoints = points.map(h => this.currentMarket === 'US' ? h.us_value : h.tsx_value);
+                    const labels = points.map(h => {
+                        if (h.date === 'Inception' || h.date === 'Start') return 'Start';
+                        if (h.date === 'Now') return 'Now';
                         const parts = h.date.split('-');
                         return parts.length >= 3 ? `${parts[1]}/${parts[2]}` : h.date;
                     });
                     
-                    if (dataPoints.length > 0 && dataPoints[dataPoints.length - 1] !== this.currentTotalValue) {
-                        dataPoints.push(this.currentTotalValue);
-                        labels.push("Now");
-                    }
-                    
-                    const isUp = dataPoints[dataPoints.length - 1] >= dataPoints[0];
-                    const color = isUp ? '#10b981' : '#f43f5e';
+                    // Determine if curve is up or down over this timeframe
+                    const isUp = this.defaultReturnDollar >= 0;
+                    const strokeColor = isUp ? '#05d184' : '#f43f5e';
                     
                     this.chartInstance = new Chart(ctx, {
                         type: 'line',
@@ -1649,18 +1649,21 @@
                             labels: labels,
                             datasets: [{
                                 data: dataPoints,
-                                borderColor: color,
+                                borderColor: strokeColor,
                                 borderWidth: 2.5,
                                 fill: true,
                                 backgroundColor: (context) => {
-                                    const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 160);
-                                    gradient.addColorStop(0, isUp ? 'rgba(16, 185, 129, 0.25)' : 'rgba(244, 63, 94, 0.25)');
+                                    const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 200);
+                                    gradient.addColorStop(0, isUp ? 'rgba(5, 209, 132, 0.18)' : 'rgba(244, 63, 94, 0.18)');
                                     gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
                                     return gradient;
                                 },
                                 pointRadius: 0,
-                                pointHitRadius: 15,
-                                tension: 0.2
+                                pointHoverRadius: 5,
+                                pointHoverBackgroundColor: strokeColor,
+                                pointHoverBorderColor: '#ffffff',
+                                pointHoverBorderWidth: 2,
+                                tension: 0.25
                             }]
                         },
                         options: {
@@ -1669,99 +1672,26 @@
                             plugins: {
                                 legend: { display: false },
                                 tooltip: {
-                                    mode: 'index',
-                                    intersect: false,
-                                    callbacks: {
-                                        label: (context) => this.formatCurrency(context.parsed.y, this.currentMarket)
-                                    }
+                                    enabled: false // Custom Wealthsimple scrubbing handles this
                                 }
                             },
                             scales: {
-                                x: {
-                                    grid: { display: false },
-                                    ticks: { color: '#64748b', font: { size: 10 } }
-                                },
+                                x: { display: false },
                                 y: {
                                     display: false,
-                                    min: Math.min(...dataPoints) * 0.995,
-                                    max: Math.max(...dataPoints) * 1.005
+                                    min: Math.min(...dataPoints) * 0.99,
+                                    max: Math.max(...dataPoints) * 1.01
                                 }
                             },
-                            interaction: { mode: 'nearest', axis: 'x', intersect: false }
+                            interaction: { mode: 'index', intersect: false }
                         }
                     });
                 },
-                renderStockChart() {
-                    const ctx = document.getElementById('stockChart');
-                    if (!ctx || !this.selectedStock || !this.hasStockHistory(this.selectedStock.symbol)) return;
-                    if (this.stockChartInstance) {
-                        this.stockChartInstance.destroy();
-                        this.stockChartInstance = null;
-                    }
-                    
-                    const hist = this.data.stock_histories[this.selectedStock.symbol];
-                    const dataPoints = hist.map(h => h.price);
-                    const labels = hist.map(h => {
-                        const parts = h.date.split('-');
-                        return parts.length >= 3 ? `${parts[1]}/${parts[2]}` : h.date;
-                    });
-                    
-                    const isUp = dataPoints[dataPoints.length - 1] >= dataPoints[0];
-                    const color = isUp ? '#10b981' : '#f43f5e';
-                    
-                    this.stockChartInstance = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                data: dataPoints,
-                                borderColor: color,
-                                borderWidth: 2,
-                                fill: true,
-                                backgroundColor: (context) => {
-                                    const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 160);
-                                    gradient.addColorStop(0, isUp ? 'rgba(16, 185, 129, 0.25)' : 'rgba(244, 63, 94, 0.25)');
-                                    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                                    return gradient;
-                                },
-                                pointRadius: 0,
-                                pointHitRadius: 15,
-                                tension: 0.2
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: { display: false },
-                                tooltip: {
-                                    mode: 'index',
-                                    intersect: false,
-                                    callbacks: {
-                                        label: (context) => this.formatCurrency(context.parsed.y, this.currentMarket)
-                                    }
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    grid: { display: false },
-                                    ticks: { color: '#64748b', font: { size: 10 } }
-                                },
-                                y: {
-                                    display: false,
-                                    min: Math.min(...dataPoints) * 0.98,
-                                    max: Math.max(...dataPoints) * 1.02
-                                }
-                            }
-                        }
-                    });
-                },
+                
                 async fetchData(isManual = false) {
                     if (isManual) this.syncing = true;
                     const cacheKey = 'tradebot_dashboard_cache';
                     
-                    // 1. Dual-layer fetch strategy:
-                    // Primary: Raw Gist CDN (No rate limit, fast global caching)
                     const rawCdnUrl = `https://gist.githubusercontent.com/Aakarsh211/ae8497fb6814f01e75c9e00ccda036ba/raw/dashboard.json?t=${Date.now()}`;
                     const gistApiUrl = `https://api.github.com/gists/ae8497fb6814f01e75c9e00ccda036ba?t=${Date.now()}`;
                     
@@ -1772,7 +1702,7 @@
                             fetchedData = await res.json();
                         }
                     } catch (e) {
-                        console.warn('Raw CDN fetch failed, attempting GitHub API fallback:', e);
+                        console.warn('Raw CDN fetch failed, trying Gist API fallback:', e);
                     }
                     
                     if (!fetchedData) {
@@ -1796,7 +1726,6 @@
                             localStorage.setItem(cacheKey, JSON.stringify(fetchedData));
                         } catch (e) {}
                     } else if (!this.data) {
-                        // Fallback to local storage if network completely failed
                         const cached = localStorage.getItem(cacheKey);
                         if (cached) {
                             this.data = JSON.parse(cached);
@@ -1808,7 +1737,7 @@
                     
                     this.loading = false;
                     if (isManual) {
-                        setTimeout(() => { this.syncing = false; }, 500);
+                        setTimeout(() => { this.syncing = false; }, 400);
                     }
                     this.updateTimeAgo();
                     
@@ -1818,7 +1747,6 @@
                 }
             },
             mounted() {
-                // Instantly load from cache first for instant 0ms startup
                 try {
                     const cached = localStorage.getItem('tradebot_dashboard_cache');
                     if (cached) {
@@ -1830,15 +1758,12 @@
                     }
                 } catch (e) {}
                 
-                // Fetch fresh remote data immediately
                 this.fetchData();
                 
-                // Auto-refresh every 60 seconds
                 setInterval(() => {
                     this.fetchData();
                 }, 60000);
                 
-                // Live time ago ticker every 5 seconds
                 this.timerInterval = setInterval(() => {
                     this.updateTimeAgo();
                 }, 5000);
