@@ -1037,7 +1037,7 @@
                                 <strong>{{ formatCurrency(investedValue, currentMarket) }}</strong>
                             </div>
                             <div class="ws-metric-box">
-                                <span>{{ currentMarket === 'US' ? 'Available Cash / Margin' : 'Virtual Cash' }}</span>
+                                <span>{{ currentMarket === 'US' ? 'Available Cash & Reserves' : 'Virtual Cash' }}</span>
                                 <strong>{{ formatCurrency(cashValue, currentMarket) }}</strong>
                             </div>
                         </div>
@@ -1267,18 +1267,12 @@
                         return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
                     }
                 },
-                cashValue() {
-                    if (!this.data) return 0;
-                    if (this.currentMarket === 'US') {
-                        const m = (this.data.us_summary || '').match(/Total Cash:\s*\$([-\d,.]+)/i);
-                        return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
-                    } else {
-                        const m = (this.data.tsx_summary || '').match(/Virtual Cash:\s*\$([-\d,.]+)/i);
-                        return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
-                    }
-                },
                 investedValue() {
-                    return Math.max(0, this.currentTotalValue - this.cashValue);
+                    if (!this.currentHoldings || this.currentHoldings.length === 0) return 0;
+                    return this.currentHoldings.reduce((sum, h) => sum + (h.value || 0), 0);
+                },
+                cashValue() {
+                    return Math.max(0, this.currentTotalValue - this.investedValue);
                 },
                 
                 // Full normalized history (always starts with $1,000,000 baseline at index 0)
