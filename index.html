@@ -571,6 +571,25 @@
             border: 1px solid var(--ws-red-border);
         }
 
+        .ws-action-badge.TRIM {
+            background: rgba(251, 146, 60, 0.14);
+            color: #fb923c;
+            border: 1px solid rgba(251, 146, 60, 0.35);
+        }
+
+        .ws-action-badge.SWEEP_IN,
+        .ws-action-badge.SWEEP_OUT {
+            background: rgba(56, 189, 248, 0.14);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+        }
+
+        .ws-action-badge.DIVIDEND {
+            background: rgba(168, 85, 247, 0.16);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+        }
+
         .ws-trade-symbol {
             font-size: 1rem;
             font-weight: 700;
@@ -1119,7 +1138,7 @@
                                 <div class="ws-trade-title-group">
                                     <span class="ws-action-badge" :class="trade.action">{{ trade.action }}</span>
                                     <span class="ws-trade-symbol">{{ trade.symbol }}</span>
-                                    <span class="ws-weight-tag">{{ trade.bucket === 'TSX_VIRTUAL' ? 'TSX' : 'US' }}</span>
+                                    <span class="ws-weight-tag">{{ (trade.bucket && trade.bucket.startsWith('TSX')) || (trade.symbol && trade.symbol.endsWith('.TO')) ? 'TSX' : 'US' }}</span>
                                 </div>
                                 <span class="ws-trade-time">{{ formatTime(trade.timestamp) }}</span>
                             </div>
@@ -1227,7 +1246,7 @@
     <script>
         const { createApp } = Vue;
 
-        createApp({
+        const app = createApp({
             data() {
                 return {
                     loading: true,
@@ -1260,10 +1279,12 @@
                 currentTotalValue() {
                     if (!this.data) return 0;
                     if (this.currentMarket === 'US') {
-                        const m = (this.data.us_summary || '').match(/Total Net Liquidation(?:\s*\(USD\))?:\s*\$([-\d,.]+)/i);
+                        const raw = typeof this.data.us_summary === 'string' ? this.data.us_summary : (this.data.us_summary && this.data.us_summary.us_summary ? this.data.us_summary.us_summary : '');
+                        const m = (raw || '').match(/Total Net Liquidation(?:\s*\(USD\))?:\s*\$([-\d,.]+)/i);
                         return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
                     } else {
-                        const m = (this.data.tsx_summary || '').match(/Virtual TSX Budget(?:\s*\(CAD\))?:\s*\$([-\d,.]+)/i);
+                        const raw = typeof this.data.tsx_summary === 'string' ? this.data.tsx_summary : (this.data.tsx_summary && this.data.tsx_summary.tsx_summary ? this.data.tsx_summary.tsx_summary : '');
+                        const m = (raw || '').match(/Virtual TSX Budget(?:\s*\(CAD\))?:\s*\$([-\d,.]+)/i);
                         return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
                     }
                 },
@@ -1274,25 +1295,27 @@
                 cashValue() {
                     if (!this.data) return 0;
                     if (this.currentMarket === 'US') {
-                        const m = (this.data.us_summary || '').match(/Total(?:\s*USD)?\s*Cash:\s*\$([-\d,.]+)/i);
+                        const raw = typeof this.data.us_summary === 'string' ? this.data.us_summary : (this.data.us_summary && this.data.us_summary.us_summary ? this.data.us_summary.us_summary : '');
+                        const m = (raw || '').match(/Total(?:\s*USD)?\s*Cash:\s*\$([-\d,.]+)/i);
                         return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
                     } else {
-                        const m = (this.data.tsx_summary || '').match(/Virtual(?:\s*CAD)?\s*Cash:\s*\$([-\d,.]+)/i);
+                        const raw = typeof this.data.tsx_summary === 'string' ? this.data.tsx_summary : (this.data.tsx_summary && this.data.tsx_summary.tsx_summary ? this.data.tsx_summary.tsx_summary : '');
+                        const m = (raw || '').match(/Virtual(?:\s*CAD)?\s*Cash:\s*\$([-\d,.]+)/i);
                         return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
                     }
                 },
                 
-                // Full normalized history (always starts with $1,000,000 baseline at index 0)
+                // Full normalized history (starts with Inception baseline: $704,225.35 USD / C$1,000,000 CAD)
                 normalizedHistory() {
                     if (!this.data || !this.data.portfolio_history) return [];
                     let hist = [...this.data.portfolio_history];
                     
-                    // Guarantee baseline $1,000,000 entry at start if missing
-                    const hasBaseline = hist.length > 0 && (hist[0].date === 'Inception' || hist[0].date === 'Start' || hist[0].us_value === 1000000.0);
+                    // Guarantee baseline Inception entry at start if missing
+                    const hasBaseline = hist.length > 0 && (hist[0].date === 'Inception' || hist[0].date === 'Start');
                     if (!hasBaseline) {
                         hist.unshift({
                             date: 'Inception',
-                            us_value: 1000000.0,
+                            us_value: 704225.35,
                             tsx_value: 1000000.0
                         });
                     }
@@ -1334,14 +1357,12 @@
                 
                 // Base value for current timeframe calculation
                 timeframeBaseValue() {
-                    if (this.selectedTimeframe === 'ALL') {
-                        return 1000000.0; // Inception baseline
-                    }
+                    const defaultBase = this.currentMarket === 'US' ? 704225.35 : 1000000.0;
                     const points = this.filteredHistory;
-                    if (points.length === 0) return this.currentTotalValue || 1000000.0;
+                    if (points.length === 0) return this.currentTotalValue || defaultBase;
                     const first = points[0];
                     const val = this.currentMarket === 'US' ? first.us_value : first.tsx_value;
-                    return val || this.currentTotalValue || 1;
+                    return val || this.currentTotalValue || defaultBase;
                 },
                 
                 // Return calculations for hero section
@@ -1377,7 +1398,14 @@
                 
                 currentHoldings() {
                     if (!this.data) return [];
-                    const str = this.currentMarket === 'US' ? this.data.us_positions : this.data.tsx_positions;
+                    let str = this.currentMarket === 'US' ? this.data.us_positions : this.data.tsx_positions;
+                    if (typeof str !== 'string') {
+                        if (this.currentMarket === 'US' && this.data.us_summary && typeof this.data.us_summary === 'object') {
+                            str = this.data.us_summary.us_positions || '';
+                        } else {
+                            str = '';
+                        }
+                    }
                     if (!str || str === "None") return [];
                     
                     const items = [];
@@ -1452,9 +1480,9 @@
                     if (!this.data || !this.data.trades) return [];
                     let list = [...this.data.trades];
                     if (this.tradeMarketFilter === 'US') {
-                        list = list.filter(t => t.bucket === 'US' || !t.symbol.endsWith('.TO'));
+                        list = list.filter(t => (t.bucket && t.bucket.startsWith('US')) || (!t.symbol.endsWith('.TO') && !(t.bucket && t.bucket.startsWith('TSX'))));
                     } else if (this.tradeMarketFilter === 'TSX') {
-                        list = list.filter(t => t.bucket === 'TSX_VIRTUAL' || t.symbol.endsWith('.TO'));
+                        list = list.filter(t => (t.bucket && t.bucket.startsWith('TSX')) || t.symbol.endsWith('.TO'));
                     }
                     if (this.tradeActionFilter !== 'ALL') {
                         list = list.filter(t => t.action === this.tradeActionFilter);
@@ -1722,7 +1750,9 @@
                     try {
                         const res = await fetch(rawCdnUrl, { cache: 'no-store' });
                         if (res.ok) {
-                            fetchedData = await res.json();
+                            const rawText = await res.text();
+                            const cleanText = rawText.replace(/^\ufeff/, '').trim();
+                            fetchedData = JSON.parse(cleanText);
                         }
                     } catch (e) {
                         console.warn('Raw CDN fetch failed, trying Gist API fallback:', e);
@@ -1734,7 +1764,8 @@
                             if (res.ok) {
                                 const gistJson = await res.json();
                                 if (gistJson.files && gistJson.files['dashboard.json']) {
-                                    fetchedData = JSON.parse(gistJson.files['dashboard.json'].content);
+                                    const rawText = (gistJson.files['dashboard.json'].content || '').replace(/^\ufeff/, '').trim();
+                                    fetchedData = JSON.parse(rawText);
                                 }
                             }
                         } catch (e) {
@@ -1743,6 +1774,12 @@
                     }
                     
                     if (fetchedData) {
+                        if (fetchedData.us_summary && typeof fetchedData.us_summary === 'object') {
+                            if (typeof fetchedData.us_summary.us_positions === 'string' && !fetchedData.us_positions) {
+                                fetchedData.us_positions = fetchedData.us_summary.us_positions;
+                            }
+                            fetchedData.us_summary = fetchedData.us_summary.us_summary || '';
+                        }
                         this.data = fetchedData;
                         this.fetchError = false;
                         try {
@@ -1751,7 +1788,16 @@
                     } else if (!this.data) {
                         const cached = localStorage.getItem(cacheKey);
                         if (cached) {
-                            this.data = JSON.parse(cached);
+                            try {
+                                const parsed = JSON.parse(cached);
+                                if (parsed && typeof parsed.us_summary === 'object') {
+                                    if (typeof parsed.us_summary.us_positions === 'string' && !parsed.us_positions) {
+                                        parsed.us_positions = parsed.us_summary.us_positions;
+                                    }
+                                    parsed.us_summary = parsed.us_summary.us_summary || '';
+                                }
+                                this.data = parsed;
+                            } catch (e) {}
                             this.fetchError = true;
                         } else {
                             this.fetchError = true;
@@ -1773,7 +1819,14 @@
                 try {
                     const cached = localStorage.getItem('tradebot_dashboard_cache');
                     if (cached) {
-                        this.data = JSON.parse(cached);
+                        const parsed = JSON.parse(cached);
+                        if (parsed && typeof parsed.us_summary === 'object') {
+                            if (typeof parsed.us_summary.us_positions === 'string' && !parsed.us_positions) {
+                                parsed.us_positions = parsed.us_summary.us_positions;
+                            }
+                            parsed.us_summary = parsed.us_summary.us_summary || '';
+                        }
+                        this.data = parsed;
                         this.loading = false;
                         this.$nextTick(() => {
                             this.renderPortfolioChart();
@@ -1794,7 +1847,11 @@
             beforeUnmount() {
                 if (this.timerInterval) clearInterval(this.timerInterval);
             }
-        }).mount('#app');
+        });
+        app.config.errorHandler = (err, vm, info) => {
+            console.error('Handled Vue Error:', err, info);
+        };
+        app.mount('#app');
     </script>
 </body>
 </html>
